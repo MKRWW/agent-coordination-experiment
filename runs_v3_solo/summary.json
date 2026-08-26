@@ -1,0 +1,23 @@
+{
+  "scenario": "scenario_v3",
+  "scenario_id": "billing-504-pool-timeout-dicht",
+  "fingerprint": "93afd9efbaac1bdc",
+  "summary": {
+    "A": {
+      "n": 10,
+      "correct": 0,
+      "correct_with_trap": 0,
+      "wrong": 3,
+      "none": 7,
+      "trap_hit": 1
+    },
+    "B": {
+      "n": 10,
+      "correct": 2,
+      "correct_with_trap": 0,
+      "wrong": 4,
+      "none": 4,
+      "trap_hit": 0
+    }
+  }
+}

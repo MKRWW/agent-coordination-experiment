@@ -1,0 +1,23 @@
+{
+  "scenario": "scenario",
+  "scenario_id": "billing-504-pool-timeout",
+  "fingerprint": "ca574d4728857652",
+  "summary": {
+    "A": {
+      "n": 10,
+      "correct": 3,
+      "correct_with_trap": 0,
+      "wrong": 5,
+      "none": 2,
+      "trap_hit": 0
+    },
+    "B": {
+      "n": 10,
+      "correct": 0,
+      "correct_with_trap": 0,
+      "wrong": 1,
+      "none": 9,
+      "trap_hit": 0
+    }
+  }
+}

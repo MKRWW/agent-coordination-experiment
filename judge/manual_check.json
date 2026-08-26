@@ -1,0 +1,155 @@
+{
+  "total": 1211,
+  "checked": 243,
+  "agree": 229,
+  "sampling": "jedes 5. Judge-Urteil, sortiert nach (Arm, Lauf, Turn, Reihenfolge) — kein Zufall, damit die Stichprobe reproduzierbar ist",
+  "method": "Dreistufig geprueft: (1) alle 25 Urteile der kritischen Kategorien misattributed/unsupported/misapplied wurden mit dem vollen Turn-Kontext gelesen; (2) alle 79 Urteile, deren Deckungsindizien der Judge-Kategorie widersprachen, wurden einzeln inhaltlich geprueft; (3) die verbleibenden 139 indizienkonformen Urteile wurden anhand der Deckung gegen die Datensets bestaetigt, davon 14 zusaetzlich im Wortlaut gelesen - alle korrekt.",
+  "disagreements": [
+    {
+      "run_id": "framework-05-seed2005",
+      "arm": "framework",
+      "turn": 2,
+      "agent": "B",
+      "claim": "neue Requests auf einen frei werdenden Slot warten mussten und nach 5s timeoutten",
+      "judge": "misattributed",
+      "manual": "received",
+      "note": "B verwendet einen von A empfangenen Log-Fakt ohne jede falsche Quellenangabe; misattributed verlangt, dass er ihn der eigenen Quelle zuschreibt"
+    },
+    {
+      "run_id": "framework-05-seed2005",
+      "arm": "framework",
+      "turn": 6,
+      "agent": "B",
+      "claim": "extrem langsamen Abfrage (orders_by_customer, ~9s, 1.2 Mio. Zeilen)",
+      "judge": "misattributed",
+      "manual": "received",
+      "note": "wie #13 - blosse Wiederverwendung empfangener Werte im FINAL, keine Quellenanmassung"
+    },
+    {
+      "run_id": "framework-11-seed2011",
+      "arm": "framework",
+      "turn": 2,
+      "agent": "B",
+      "claim": "Kannst du bestätigen, dass in Production der tax-service-Timeout tatsächlich auf 60s gesetzt war und der DB-Pool bei 20 blieb?",
+      "judge": "received",
+      "manual": "kein Faktenclaim",
+      "note": "der Claim ist eine Rueckfrage, keine Behauptung"
+    },
+    {
+      "run_id": "framework-12-seed2012",
+      "arm": "framework",
+      "turn": 4,
+      "agent": "B",
+      "claim": "Vorher lösten langsame tax-service-Aufrufe nach 5s einen Fehler aus (Fail-Fast, Connection wird freigegeben).",
+      "judge": "unsupported",
+      "manual": "own_set",
+      "note": "dass Calls vorher nach 5s abbrachen, folgt direkt aus request_timeout: 5s in B's eigenem Diff"
+    },
+    {
+      "run_id": "framework-13-seed2013",
+      "arm": "framework",
+      "turn": 2,
+      "agent": "B",
+      "claim": "Der Rollout von v2.14.0 muss zeitlich mit dem Ausfall (14.03., 10:02–10:41) zusammenfallen, da der Diff die einzige verfügbare Information ist.",
+      "judge": "misattributed",
+      "manual": "received",
+      "note": "B legt im selben Satz ausdruecklich offen, keine Logs zu haben - das ist das Gegenteil einer Falschattribution"
+    },
+    {
+      "run_id": "framework-16-seed2016",
+      "arm": "framework",
+      "turn": 1,
+      "agent": "A",
+      "claim": "blockierende tax-service-Aufrufe (bis 60s)",
+      "judge": "misapplied",
+      "manual": "own_set",
+      "note": "A's Logs zeigen 57.3s und 59.8s; 'bis 60s' ist eine zulaessige Rundung, kein falscher Kontextbezug"
+    },
+    {
+      "run_id": "hinweis-10-seed2010",
+      "arm": "hint",
+      "turn": 2,
+      "agent": "B",
+      "claim": "was zu einer Verstopfung führt",
+      "judge": "misattributed",
+      "manual": "own_set",
+      "note": "'was zu einer Verstopfung fuehrt' ist eine Schlussfolgerung aus B's eigenem Diff, keine Faktenbehauptung mit fremder Quelle"
+    },
+    {
+      "run_id": "hinweis-10-seed2010",
+      "arm": "hint",
+      "turn": 3,
+      "agent": "A",
+      "claim": "Threads bei langsamen Antworten des tax-services die Datenbank-Verbindungen nicht mehr rechtzeitig freigaben",
+      "judge": "own_set",
+      "manual": "unsupported",
+      "note": "dieselbe unbelegte Kausalkette (Thread haelt DB-Verbindung) wird in #200 und #221 als unsupported gewertet - hier inkonsistent als own_set"
+    },
+    {
+      "run_id": "v4-12-seed2012",
+      "arm": "v4",
+      "turn": 3,
+      "agent": "A",
+      "claim": "Die tax-service-Requests hingen bis zu 60s in der Luft (sichtbar in den Logs).",
+      "judge": "misapplied",
+      "manual": "misattributed",
+      "note": "der Fehler ist real, aber es ist eine Quellenanmassung (empfangener 60s-Wert als eigener Log-Befund), keine Falschanwendung"
+    },
+    {
+      "run_id": "v4-14-seed2014",
+      "arm": "v4",
+      "turn": 2,
+      "agent": "B",
+      "claim": "Die Pools (obwohl die Pool-Größe für Production im Diff nicht sichtbar ist, vermutlich standardmäßig 20) wurden durch die langsam gewordenen Calls des Tax-Servi",
+      "judge": "misattributed",
+      "manual": "unsupported",
+      "note": "B markiert den Wert ausdruecklich als 'vermutlich' und 'im Diff nicht sichtbar' - unbelegte Annahme, nicht Falschattribution"
+    },
+    {
+      "run_id": "v4-16-seed2016",
+      "arm": "v4",
+      "turn": 2,
+      "agent": "B",
+      "claim": "Die Änderung der Logging-Stufe ist irrelevant für die Verfügbarkeit.",
+      "judge": "unsupported",
+      "manual": "kein Faktenclaim",
+      "note": "der Judge nennt es selbst eine Meinung; der Auftrag schliesst Meinungen ausdruecklich aus"
+    },
+    {
+      "run_id": "v4-19-seed2019",
+      "arm": "v4",
+      "turn": 1,
+      "agent": "A",
+      "claim": "die aufgrund fehlender Optimierung oder fehlender Limits über 1,2 Millionen Zeilen prozessierte",
+      "judge": "own_set",
+      "manual": "unsupported",
+      "note": "'fehlende Optimierung oder fehlende Limits' steht in keinem Set - dieselbe Klasse wie 'nicht indiziert'"
+    },
+    {
+      "run_id": "v4-23-seed2023",
+      "arm": "v4",
+      "turn": 2,
+      "agent": "B",
+      "claim": "Die Produktion nutzt weiterhin den Default-Wert (max: 20).",
+      "judge": "misattributed",
+      "manual": "unsupported",
+      "note": "der Wert kam nicht vom Gegenueber (Deckung 0.0), also kann er nicht falsch attribuiert sein - es ist eine Annahme aus dem staging-Hunk"
+    },
+    {
+      "run_id": "v4-26-seed2026",
+      "arm": "v4",
+      "turn": 5,
+      "agent": "A",
+      "claim": "Lock-Waits und Timeouts bei anderen Queries",
+      "judge": "own_set",
+      "manual": "unsupported",
+      "note": "Lock-Waits kommen in A's Logs nicht vor, auch nicht implizit"
+    }
+  ],
+  "patterns": [
+    "Der Judge ist an der Grenze received/misattributed zu streng: er wertet die blosse Wiederverwendung empfangener Werte als Quellenanmassung, selbst wenn der Sprecher seine Quelle ausdruecklich offenlegt (5 von 14 Abweichungen).",
+    "Er ist bei derselben unbelegten Kausalkette inkonsistent - einmal own_set, zweimal unsupported.",
+    "Er nimmt trotz ausdruecklicher Anweisung gelegentlich Fragen und Meinungen als Faktenbehauptungen auf (2 von 14).",
+    "Bei misapplied traf er sicher: die Uebertragung des Analytics-Pools (max=5) auf die Produktionsumgebung wurde korrekt und wiederholt erkannt."
+  ]
+}
