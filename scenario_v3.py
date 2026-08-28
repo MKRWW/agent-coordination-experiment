@@ -156,10 +156,17 @@ SOLUTION_REQUIRED_GROUPS = [
     ["5s auf 60", "5 auf 60", "von 5s", "request_timeout", "timeout-erhöhung",
      "timeout-erhoehung", "timeout erhöht", "timeout erhoeht", "erhöhten timeout",
      "erhöhte timeout", "erhöhung des timeouts", "erhöhung des http-timeouts",
-     "heraufgesetzt", "hochgesetzt", "verlängerten timeout"],
+     "heraufgesetzt", "hochgesetzt", "verlängerten timeout",
+     # Wortstellungs-robuste Varianten derselben Aussage
+     r"re:erh[oö]h\w*\s+(?:\w+[- ]){0,4}timeout",
+     r"re:timeout\s*(?:\w+[- ]){0,4}\s*(?:auf|von)\s*60",
+     r"re:timeout[- ]?(?:wert|einstellung|konfiguration)?\s*\w*\s*erh[oö]h"],
     # 2) der blockierte Verbindungspool
     ["pool", "verbindungspool", "connection pool", "connections", "poolerschöpfung",
-     "pool-erschöpfung", "pool erschöpft", "pool exhaust"],
+     "pool-erschöpfung", "pool erschöpft", "pool exhaust",
+     # dieselbe Aussage ohne das Wort "Pool"
+     r"re:(?:db|datenbank)[- ]?verbindung",
+     r"re:verbindungen\s+(?:dauerhaft\s+)?(?:blockier|belegt|gehalten)"],
     # 3) der Downstream, der die Verbindungen festhaelt
     ["tax-service", "tax service", "tax_service", "taxservice"],
 ]

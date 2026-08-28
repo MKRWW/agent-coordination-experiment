@@ -23,19 +23,76 @@ CONFIGS = [
      "runs_hint", "hinweis-", "runs_v3_solo30/summary.json", "scenario_v3_hint", True),
     ("Arm Framework — Framework gegen Framework",
      "runs_framework", "framework-", "runs_v3_solo30/summary.json", "scenario_v3", True),
+    ("Arm Entwickler — v4 plus Rollenzeile",
+     "runs_dev", "dev-", "runs_v3_solo30/summary.json", "scenario_v3_dev", True),
+    ("Arm Manager — v4 plus Rollenzeile",
+     "runs_mgr", "mgr-", "runs_v3_solo30/summary.json", "scenario_v3_mgr", True),
+    ("Arm Entwickler+Werkzeuge",
+     "runs_dev_tools", "devtools-", "runs_v3_solo30/summary.json",
+     "scenario_v3_dev_tools", True),
+    ("Arm Manager+Werkzeuge",
+     "runs_mgr_tools", "mgrtools-", "runs_v3_solo30/summary.json",
+     "scenario_v3_mgr_tools", True),
+    ("Arm Entwickler+Werkzeuge+Konzern",
+     "runs_dev_corp", "devcorp-", "runs_v3_solo30/summary.json",
+     "scenario_v3_dev_corp", True),
+    ("Arm Manager+Werkzeuge+Konzern",
+     "runs_mgr_corp", "mgrcorp-", "runs_v3_solo30/summary.json",
+     "scenario_v3_mgr_corp", True),
+    ("Arm Entwickler+Entscheidung",
+     "runs_dev_decide", "devdec-", "runs_v3_solo30/summary.json",
+     "scenario_v3_dev_decide", True),
+    ("Arm Manager+Entscheidung",
+     "runs_mgr_decide", "mgrdec-", "runs_v3_solo30/summary.json",
+     "scenario_v3_mgr_decide", True),
 ]
-SHORT = {"Arm v4 — dicht, mit FINAL-Sperre": "v4",
+SHORT = {"Arm Entwickler+Entscheidung": "Dev+Entsch",
+         "Arm Manager+Entscheidung": "Mgr+Entsch",
+         "Arm Entwickler+Werkzeuge+Konzern": "Dev+Konzern",
+         "Arm Manager+Werkzeuge+Konzern": "Mgr+Konzern",
+         "Arm Entwickler+Werkzeuge": "Dev+Tools",
+         "Arm Manager+Werkzeuge": "Mgr+Tools",
+         "Arm Entwickler — v4 plus Rollenzeile": "Entwickler",
+         "Arm Manager — v4 plus Rollenzeile": "Manager",
+         "Arm v4 — dicht, mit FINAL-Sperre": "v4",
          "Arm Hinweis — v4 plus ein Satz": "Hinweis",
          "Arm Framework — Framework gegen Framework": "Framework"}
 
 
-def load_runs(run_dir, prefix):
+def _reclassify(res, scen):
+    """
+    Bewertet die FINAL-Texte mit der aktuellen Loesungsklassifikation neu.
+    Die Rohdaten bleiben unangetastet - massgeblich ist immer der Code, nicht
+    der zum Laufzeitpunkt gespeicherte Wert. Notwendig, weil die urspruengliche
+    Substring-Liste Formulierungen wie "erhoehte das Tax-Service-Timeout"
+    verfehlte; 34 der 270 Laeufe aendern dadurch ihre Einstufung.
+    """
+    import sys as _sys
+    _sys.modules["scenario"] = scen
+    for mod in ("metrics",):
+        _sys.modules.pop(mod, None)
+    import metrics as _m
+    pa = res["metric_4_solution"]["per_agent"]
+    sol = {a: _m.classify_solution(pa[a]["final"]) for a in ("A", "B")}
+    res["metric_4_solution"]["outcome_class"] = _m.classify_run_outcome(
+        sol["A"], sol["B"])
+    res["metric_4_solution"]["trap_hit"] = sol["A"]["trap_hit"] or sol["B"]["trap_hit"]
+    res["metric_4_solution"]["consensus"] = _m.consensus_of(
+        pa["A"]["final"], pa["B"]["final"], sol["A"], sol["B"])
+    for a in ("A", "B"):
+        pa[a].update(sol[a])
+    return res
+
+
+def load_runs(run_dir, prefix, scen=None):
     out = []
     for p in sorted(glob.glob(os.path.join(run_dir, f"{prefix}*.jsonl"))):
         lines = [json.loads(l) for l in open(p, encoding="utf-8")]
         res = next((o for o in lines if o["type"] == "run_result"), None)
         if not res:
             continue
+        if scen is not None:
+            res = _reclassify(res, scen)
         out.append({"path": p,
                     "meta": next(o for o in lines if o["type"] == "run_meta"),
                     "result": res,
@@ -93,6 +150,17 @@ def arm_stats(runs):
         "fw_tokens": [f["total_tokens"] for f in fo] if fo else [],
         "injected": [f["injected_chars_median"] for f in fo if f.get("injected_chars_median")] if fo else [],
         "aborts": sum(1 for x in R if x.get("abort_reason")),
+        "corporate": sum(x.get("metric_7_corporate", {}).get("total", 0) for x in R),
+        "corporate_kinds": {k: sum(x.get("metric_7_corporate", {})
+                                   .get("by_kind", {}).get(k, 0) for x in R)
+                            for k in ("blame", "escalation", "agree_to_disagree",
+                                      "process")},
+        "unresolved": verd.get("one_correct_unresolved", 0),
+        "tools": sum(x.get("metric_8_tool_calls", {}).get("total", 0) for x in R),
+        "tools_by": {t: sum(x.get("metric_8_tool_calls", {}).get("by_tool", {})
+                            .get(t, 0) for x in R)
+                     for t in ("request_data", "analyze", "document",
+                               "escalate", "meeting", "assign")},
     }
 
 
@@ -114,7 +182,7 @@ def comparison_section(arms):
     A = L.append
     names = list(arms.keys())
     A("\n## Armvergleich\n")
-    A("Alle drei Arme: Szenario v3, Seeds 2001–2030, FINAL-Sperre aktiv, "
+    A(f"Alle {len(names)} Arme: Szenario v3, Seeds 2001–2030, FINAL-Sperre aktiv, "
       "`temperature=0.7`, `max_tokens=700`, `enable_thinking=false`, Turn-Grenze 20. "
       "Der Framework-Arm bekommt diese Werte ueber den Mitschnitt-Proxy "
       "aufgezwungen, weil das Framework dafuer keinen Konfigurationsweg bietet.\n")
@@ -152,6 +220,10 @@ def comparison_section(arms):
         lambda s: str(med_range(s["model_calls"])[0]) if s["model_calls"] else "1 pro Turn")
     row("**Gesamt-Token je Lauf (Median)**",
         lambda s: f"**{med_range(s['tokens'])[0]:.0f}**")
+    row("Werkzeugaufrufe (Metrik 8)",
+        lambda s: str(s["tools"]) if s["tools"] else "—")
+    row("Corporate-Verhalten (Metrik 7)",
+        lambda s: str(s["corporate"]) if s["corporate"] else "0")
     row("Isolationspruefung bestanden", lambda s: f"{s['iso_ok']}/{s['n']}")
     if any(arms[k]["injected"] for k in names):
         row("vom Framework injizierte Zeichen",
@@ -623,10 +695,10 @@ def main(out_path):
     sections, arms, all_arm_runs, hint_runs, legacy = [], {}, [], [], []
     r0 = None
     for title, d, pref, solo, mod, is_arm in CONFIGS:
-        runs = load_runs(d, pref)
+        scen = importlib.import_module(mod)
+        runs = load_runs(d, pref, scen)
         if not runs:
             continue
-        scen = importlib.import_module(mod)
         sec, s = config_section(title, runs, solo, scen, is_arm)
         s["tokens"] = token_totals(runs)
         sections.append((title, sec, is_arm))
@@ -718,8 +790,7 @@ def main(out_path):
           f"Ergebnis verbessert, ist mit dieser Stichprobe offen.\n")
         rf = st.compare_binary("Hinweis", hi["both_correct"], hi["n"],
                                "Framework", fw["both_correct"], fw["n"])
-        A(f"**3. Das Framework schneidet schlechter ab — und das ist der "
-          f"einzige signifikante Unterschied im ganzen Experiment.** "
+        A(f"**3. Das Framework schneidet schlechter ab.** "
           f"`both_correct` {fw['both_correct']}/{fw['n']} gegen "
           f"{hi['both_correct']}/{hi['n']} im Hinweis-Arm (p={rf['p_str']}, "
           f"Odds Ratio {rf['odds_ratio']}). Dabei verbraucht es "
@@ -766,6 +837,108 @@ def main(out_path):
     for title, sec, is_arm in sections:
         if not is_arm:
             L += sec
+
+    if "Entwickler" in arms and "Manager" in arms:
+        d, m2, b = arms["Entwickler"], arms["Manager"], arms.get("v4")
+        r = st.compare_binary("Entwickler", d["unresolved"], d["n"],
+                              "Manager", m2["unresolved"], m2["n"])
+        A("\n## Die Rollen-Arme\n")
+        A("Anlass war eine Wette in einem Kommentarstrang: mit einer "
+          "Manager-Rolle im Prompt muesste es Fingerpointing geben, "
+          "erfolgloses Eskalieren ueber viele Turns, am Ende ein "
+          "\"agree to disagree\" und ein Sync auf hoeherer Ebene naechste "
+          "Woche.\n")
+        A("Die Baseline enthaelt **keine** Rollenzuweisung. Deshalb zwei Arme "
+          "statt einem: zwischen `Entwickler` und `Manager` unterscheiden sich "
+          "die Prompts um genau sechs Zeichen, alles andere - Daten, Seeds, "
+          "Sampling, FINAL-Sperre - ist identisch. Dazu vier neue Zaehler "
+          "(Metrik 7): Schuldzuweisung, Eskalation, \"agree to disagree\", "
+          "Prozess-Vokabular.\n")
+        A(f"**Die Wette ist verloren.** Metrik 7 zaehlt in beiden Rollen-Armen "
+          f"**null** Treffer - kein Fingerpointing, keine Eskalation, kein "
+          f"Sync-Termin, kein einziges \"agree to disagree\". Auch die Laenge "
+          f"der Laeufe aendert sich nicht (Median 3 Turns in beiden Armen, wie "
+          f"in der rollenlosen Baseline). Das Modell uebernimmt die "
+          f"Rollenbezeichnung, aber nicht das Rollenklischee.\n")
+        A(f"**Ein Effekt ist trotzdem da - und zwar der, um den es der Wette "
+          f"im Kern ging.** `one_correct_unresolved` bedeutet: beide Seiten "
+          f"senden ein FINAL, eines ist richtig und eines falsch, und niemand "
+          f"raeumt den Widerspruch aus. Genau das ist ein \"agree to "
+          f"disagree\", nur ohne die Worte.\n")
+        A(f"| Arm | ungeklaerter Widerspruch |")
+        A("|---|---|")
+        if b:
+            A(f"| v4 (ohne Rolle) | {b['unresolved']}/30 |")
+        A(f"| Entwickler | **{d['unresolved']}/30** |")
+        A(f"| Manager | **{m2['unresolved']}/30** |")
+        A(f"\nEntwickler gegen Manager: {r['p_fmt']}"
+          f"{' — **signifikant**' if r['significant_05'] else ' — nicht signifikant'} "
+          f"(Bonferroni-Schwelle bei drei Vergleichen: 0.0167). In allen "
+          f"{m2['unresolved']} Manager-Faellen lag ein FINAL richtig und eines "
+          f"falsch; kein einziger Fall entstand dadurch, dass eine Seite gar "
+          f"nichts lieferte.\n")
+        A("Die vorsichtige Lesart waere gewesen: nicht der Manager faellt nach "
+          "oben aus der Reihe, sondern der Entwickler nach unten (gegen die "
+          "rollenlose Baseline mit 5/30 ist der Manager-Wert unauffaellig, "
+          "p=0.5321).\n")
+        A("> **Dieser Befund repliziert nicht.** In den beiden Armen mit "
+          "Werkzeugkasten steht es 4/30 zu 4/30, mit Konzern-Kontext 5/30 zu "
+          "2/30. Bei neun Armen und mehreren Vergleichen je Metrik ist "
+          "p=0.0046 genau der Zufallstreffer, den man erwarten muss. Der "
+          "Unterschied wird hier nur noch dokumentiert, nicht mehr "
+          "behauptet.\n")
+        A("**Werkzeugkasten und Konzern-Kontext aendern daran nichts.** Beide "
+          "Rollen bekamen denselben Werkzeugkasten aus sechs Werkzeugen, "
+          "spaeter zusaetzlich einen wortgleichen Konzern-Rahmen "
+          "(Berichtslinie, gerissenes Verfuegbarkeitsziel, dritter Ausfall im "
+          "Quartal, Zusage an die Konzern-IT). Die Werkzeugwahl bleibt "
+          "praktisch deckungsgleich: 181 gegen 182 Aufrufe ohne Kontext, 216 "
+          "gegen 182 mit. Die beiden organisatorischen Werkzeuge `meeting` und "
+          "`assign` werden von **beiden** Rollen fast vollstaendig gemieden - "
+          "in 120 Laeufen zusammen achtmal. Kein einziger Paarvergleich ueber "
+          "Werkzeuge, Ergebnis oder Corporate-Verhalten wird signifikant.\n")
+        A("Das Modell uebernimmt die Rollenbezeichnung, leitet daraus aber kein "
+          "Verhalten ab. Bei einer Sachaufgabe mit genau einer richtigen "
+          "Antwort gewinnt die Aufgabe gegen die Rolle. Ob Rollenklischees in "
+          "den Trainingsdaten liegen, sagt das nicht - nur, dass sie hier "
+          "nicht aktiviert werden.\n")
+
+    if "Dev+Entsch" in arms and "Mgr+Entsch" in arms and "Dev+Konzern" in arms:
+        dc, mc = arms["Dev+Konzern"], arms["Mgr+Konzern"]
+        dd, md = arms["Dev+Entsch"], arms["Mgr+Entsch"]
+        r = st.compare_binary("Diagnose", dc["both_correct"] + mc["both_correct"], 60,
+                              "Diagnose+Entscheidung",
+                              dd["both_correct"] + md["both_correct"], 60)
+        A("\n## Wenn es etwas zu entscheiden gibt\n")
+        A("Die bisherigen Arme liessen der Rolle keine Angriffsflaeche: eine "
+          "Diagnose mit genau einer richtigen Antwort ist fuer Entwickler und "
+          "Manager dieselbe Aufgabe. Deshalb zwei weitere Arme, in denen "
+          "zusaetzlich zu entscheiden ist, ob Release v2.14.0 zurueckgerollt "
+          "wird. Diese Frage hat **keine** richtige Antwort: ein Rollback "
+          "beendet die Pool-Blockade, holt aber genau das Problem zurueck, "
+          "dessentwegen der Timeout laut NW-4471 erhoeht wurde. Den Trade-off "
+          "ueberblickt keine Seite allein.\n")
+        A("**Die organisatorischen Werkzeuge kommen erst jetzt zum Einsatz.** "
+          f"`assign` steigt von 0 auf 9 Aufrufe, `meeting` von 1 auf 4, "
+          f"`document` von 26 auf 42 - und zwar in **beiden** Rollen "
+          f"gleichermassen. Nicht die Rolle entscheidet ueber das Verhalten, "
+          f"sondern die Aufgabe.\n")
+        A(f"**Der Preis ist die Diagnose.** `both_correct` faellt von "
+          f"{dc['both_correct'] + mc['both_correct']}/60 auf "
+          f"{dd['both_correct'] + md['both_correct']}/60 ({r['p_fmt']}). "
+          f"Einzeln betrachtet verfehlen beide Arme die Signifikanz "
+          f"(p=0.2092 und p=0.1806); zusammengefasst wird der Unterschied "
+          f"deutlich. Das Zusammenlegen ist hier vertretbar, weil die Rolle "
+          f"ueber alle Arme hinweg nachweislich folgenlos ist - es ist eine "
+          f"Replikation ueber zwei Arme, keine nachtraegliche Gruppenbildung. "
+          f"Bei der Zahl der Tests in diesem Report bleibt es dennoch ein "
+          f"Hinweis, kein Beleg.\n")
+        A("**Und die Entscheidung selbst?** Von 60 Laeufen kommen 39 zu einer "
+          "gemeinsamen Entscheidung, 10 nur einseitig, 5 uneinig, 6 gar "
+          "nicht. Die Voten stehen 72 zu 26 fuer den Rollback. Bemerkenswert "
+          "dabei: In der Mehrzahl dieser Laeufe kennt keine der beiden Seiten "
+          "die tatsaechliche Ursache - entschieden wird trotzdem, einig und "
+          "zuegig.\n")
 
     L += probe_section()
     L += limits_section(all_arm_runs, arms)

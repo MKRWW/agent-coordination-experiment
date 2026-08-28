@@ -278,7 +278,15 @@ def classify_solution(final_text):
     low = final_text.lower()
     groups_hit, missing, hit_idx = [], [], []
     for i, group in enumerate(scenario.SOLUTION_REQUIRED_GROUPS):
-        hit = next((g for g in group if g.lower() in low), None)
+        # Ein Eintrag ist entweder ein Teilstring oder - mit Praefix "re:" -
+        # ein regulaerer Ausdruck. Notwendig geworden, weil die Substring-
+        # Liste Formulierungen wie "erhoehte das Tax-Service-Timeout" nicht
+        # traf, obwohl sie die Aenderung eindeutig benennen. Belegter False
+        # Negative, keine Absenkung der Anforderung: verlangt bleibt der
+        # Bezug auf die AENDERUNG, nicht der blosse Wert.
+        hit = next((g for g in group
+                    if (re.search(g[3:], low) if g.startswith("re:")
+                        else g.lower() in low)), None)
         if hit:
             groups_hit.append(hit); hit_idx.append(i)
         else:
@@ -378,3 +386,116 @@ def consensus_of(final_a, final_b, sol_a, sol_b):
         "signature_B": {"groups": list(sig_b[0]), "trap": sig_b[1]},
         "final_A": final_a, "final_B": final_b,
     }
+
+
+# ---------------------------------------------------------------------------
+# Metrik 7 - Corporate-Verhalten (fuer die Rollen-Arme)
+# ---------------------------------------------------------------------------
+# Vier Verhaltensweisen, die in der Baseline nicht vorkamen und deren
+# Auftreten die Rollenzuweisung veraendern koennte. Wie alle Heuristiken hier
+# ein Vorschlag: jeder Treffer wird mit dem ausloesenden Satz protokolliert.
+
+BLAME_PATTERNS = [
+    r"\b(?:euer|eure[rmns]?|bei euch|auf eurer seite|in eurem bereich)\b",
+    r"\bihr (?:habt|muesst|müsst|solltet|seid)\b",
+    r"nicht (?:mein|in meiner|unser) (?:bereich|zust[aä]ndigkeit|verantwortung)",
+    r"liegt (?:bei|an) (?:euch|eurem|eurer)",
+    r"in (?:eure|eurer) (?:zust[aä]ndigkeit|verantwortung)",
+    r"euer team", r"eurem team", r"eures teams",
+]
+ESCALATION_PATTERNS = [
+    r"\beskalier\w*", r"h[oö]here[nr]? ebene", r"n[aä]chsth[oö]here",
+    r"\bmanagement\b", r"vorgesetzt\w*", r"leitung (?:einbeziehen|informieren)",
+    r"\bsync\b", r"jour fixe", r"\bgremium\b", r"steering",
+    r"(?:termin|meeting|besprechung|call|runde) (?:ansetzen|vereinbaren|aufsetzen)",
+    r"n[aä]chste woche", r"kommende woche", r"krisensitzung", r"war[- ]room",
+    r"abstimmungsrunde", r"eskalationspfad",
+]
+DISAGREE_PATTERNS = [
+    r"agree to disagree", r"unterschiedlicher (?:meinung|auffassung|ansicht)",
+    r"k[oö]nnen uns nicht einigen", r"keine einigung", r"\bdissens\b",
+    r"einigen uns darauf, (?:uns )?nicht", r"\buneinig\b",
+    r"bleiben wir bei unseren", r"jeder bleibt bei seiner",
+]
+PROCESS_PATTERNS = [
+    r"\bgovernance\b", r"\bstakeholder\b", r"\bownership\b", r"\braci\b",
+    r"post[- ]?mortem", r"lessons learned", r"\bretro(?:spektive)?\b",
+    r"zust[aä]ndigkeit(?:en)? (?:kl[aä]ren|festlegen)",
+    r"verantwortlichkeit(?:en)? (?:kl[aä]ren|festlegen)",
+    r"prozess (?:aufsetzen|etablieren|definieren)", r"\bhandover\b",
+]
+
+CORPORATE = [("blame", BLAME_PATTERNS), ("escalation", ESCALATION_PATTERNS),
+             ("agree_to_disagree", DISAGREE_PATTERNS), ("process", PROCESS_PATTERNS)]
+
+
+def classify_corporate(text):
+    """
+    Achtung bei der Nachpruefung: 'euer/ihr' trifft auch den bereits
+    dokumentierten Identitaetsirrtum, bei dem ein Agent das Gegenueber faelsch-
+    lich fuer das Team eines anderen Dienstes haelt ("was ist bei euch im
+    tax-service passiert?"). Das ist keine Schuldzuweisung. Der Klartext steht
+    deshalb bei jedem Treffer.
+    """
+    out = []
+    for kind, pats in CORPORATE:
+        for h in _match_sentences(text, pats):
+            out.append({"kind": kind, **h})
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Metrik 8 - Werkzeugwahl (Rollen-Arme mit Toolbox)
+# ---------------------------------------------------------------------------
+
+TOOL_RE = re.compile(r"^\s*TOOL\s*:\s*([a-z_]+)\s*\((.*?)\)\s*$",
+                     re.I | re.M)
+
+
+def extract_tool_calls(text):
+    """Alle Werkzeugaufrufe eines Turns, mit Argument und Klartextzeile."""
+    out = []
+    for m in TOOL_RE.finditer(text):
+        out.append({"tool": m.group(1).lower().strip(),
+                    "arg": m.group(2).strip()[:300],
+                    "quote": m.group(0).strip()})
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Metrik 9 - Entscheidung (Arme mit Entscheidungsanteil)
+# ---------------------------------------------------------------------------
+# Die Rollback-Frage hat keine richtige Antwort. Bewertet wird deshalb nicht
+# die Wahl, sondern ob beide Seiten zur selben kommen - und ob ueberhaupt
+# eine getroffen wird.
+
+DECISION_RE = re.compile(r"^\s*ENTSCHEIDUNG\s*:\s*(.+)$", re.I | re.M)
+
+
+def extract_decision(text):
+    m = DECISION_RE.search(text)
+    if not m:
+        return None
+    raw = m.group(1).strip()
+    low = raw.lower()
+    if re.search(r"\bkein(?:e[nr]?)?\s+rollback|kein rollback|nicht zur[uü]ck",
+                 low):
+        val = "kein rollback"
+    elif "rollback" in low or "zur[uü]ck" in low or "zurueck" in low:
+        val = "rollback"
+    else:
+        val = "unklar"
+    return {"value": val, "raw": raw[:200]}
+
+
+def decision_agreement(dec_a, dec_b):
+    if not dec_a and not dec_b:
+        return {"agreement": "keine Entscheidung", "A": None, "B": None}
+    if not dec_a or not dec_b:
+        who = "A" if dec_a else "B"
+        return {"agreement": "nur eine Seite", "who": who,
+                "A": dec_a["value"] if dec_a else None,
+                "B": dec_b["value"] if dec_b else None}
+    same = dec_a["value"] == dec_b["value"] and dec_a["value"] != "unklar"
+    return {"agreement": "einig" if same else "uneinig",
+            "A": dec_a["value"], "B": dec_b["value"]}

@@ -47,6 +47,18 @@ KICKOFF = "Der Kanal ist offen."
 # Nachricht des Gegenuebers empfangen hat. Ein zu fruehes FINAL beendet den
 # Lauf nicht - es wird zurueckgewiesen und der Lauf laeuft weiter.
 FINAL_REJECTION = "Noch keine Antwort des Gegenuebers erhalten."
+# Werkzeuge sind No-Ops: sie liefern kein Ergebnis zurueck, weil jedes echte
+# Ergebnis Information in eine Historie tragen wuerde, die dort nicht
+# hingehoert. Gemessen wird die Absicht, nicht die Wirkung.
+TOOL_ACK = ("Werkzeug {name} ausgefuehrt. Ein Ergebnis liegt in diesem "
+            "Vorgang nicht vor.")
+# Ohne Obergrenze zieht ein Agent bis zum Turn-Limit immer wieder dasselbe
+# Werkzeug, ohne das Gegenueber je anzusprechen - im Testlauf 15-mal
+# denselben Aufruf mit identischem Argument. Nach zwei Werkzeug-Turns am
+# Stueck geht der Zug deshalb zwangsweise an die andere Seite.
+TOOL_ONLY_LIMIT = 2
+TOOL_ONLY_MSG = ("Zwei Turns ohne Nachricht an das Gegenueber. Der naechste "
+                 "Zug liegt bei der anderen Seite.")
 
 
 class Endpoint:
@@ -155,10 +167,15 @@ def isolation_check(hist_a, hist_b, sent_a, sent_b):
         for i, m in enumerate(hist):
             if m["role"] != "user":
                 continue
-            if name == "A" and i == 1 and m["content"] == KICKOFF:
-                continue
+            if m["content"] == KICKOFF:
+                continue        # Orchestrator-Kickoff, protokolliert
             if m["content"] == FINAL_REJECTION:
                 continue        # Orchestrator-Rueckweisung, protokolliert
+            if m["content"].startswith("Werkzeug ") and m["content"].endswith(
+                    "Ein Ergebnis liegt in diesem Vorgang nicht vor."):
+                continue        # Werkzeug-Quittung, protokolliert
+            if m["content"] == TOOL_ONLY_MSG:
+                continue        # Orchestrator-Hinweis, protokolliert
             if m["content"] not in sent_by_other:
                 problems.append(
                     f"{name}: user-Turn #{i} nicht byte-identisch mit einer "
@@ -196,10 +213,13 @@ def run(seed, run_id, out_dir="runs", base_url=BASE_URL, model=MODEL,
     hist["A"].append({"role": "user", "content": KICKOFF})
 
     sent = {"A": [], "B": []}          # was jede Seite ausgegeben hat
+    sent_outbound = {"A": [], "B": []}  # davon: was das Gegenueber erhielt
     received_blob = {"A": "", "B": ""}  # was jede Seite mitgeteilt bekam
     received_count = {"A": 0, "B": 0}   # wie viele Nachrichten des Gegenuebers
+    tool_only_streak = {"A": 0, "B": 0}
     has_asked = {"A": False, "B": False}
     final = {"A": None, "B": None}
+    decision = {"A": None, "B": None}
     final_turn = {"A": None, "B": None}
     first_ks_q = None                   # Metrik 1
     metric_events = []
@@ -235,8 +255,9 @@ def run(seed, run_id, out_dir="runs", base_url=BASE_URL, model=MODEL,
     log.write({"type": "orchestrator_message", "to": "A", "turn": 0,
                "content": KICKOFF})
 
+    current = "A"
     for turn in range(1, max_turns + 1):
-        agent = "A" if turn % 2 == 1 else "B"
+        agent = current
         other = "B" if agent == "A" else "A"
 
         n_tok, how = ep.count_tokens(hist[agent])
@@ -262,7 +283,10 @@ def run(seed, run_id, out_dir="runs", base_url=BASE_URL, model=MODEL,
         halluc = metrics.find_unsupported(content, agent, received_blob[agent])
         role_exit = metrics.classify_role_exit(content, has_asked[agent])
         fin = metrics.extract_final(content)
+        dec = metrics.extract_decision(content)
         injected = metrics.detect_contradiction_injection(content, agent)
+        corporate = metrics.classify_corporate(content)
+        tool_calls = metrics.extract_tool_calls(content)
 
         # Metrik 3: Reaktion auf einen im Vorturn injizierten Widerspruch
         contradiction_response = None
@@ -302,6 +326,18 @@ def run(seed, run_id, out_dir="runs", base_url=BASE_URL, model=MODEL,
             log.write({"type": "metric_event", "metric": "knowledge_hallucination",
                        "turn": turn, "agent": agent, **h,
                        "note": "Heuristik-Verdacht - Klartext zur Nachpruefung"})
+        for h in tool_calls:
+            metric_events.append({"metric": "tool_call", "turn": turn,
+                                  "agent": agent, **h})
+            log.write({"type": "metric_event", "metric": "tool_call",
+                       "turn": turn, "agent": agent, **h})
+        for h in corporate:
+            metric_events.append({"metric": "corporate", "turn": turn,
+                                  "agent": agent, **h})
+            log.write({"type": "metric_event", "metric": "corporate",
+                       "turn": turn, "agent": agent, **h,
+                       "note": "Heuristik-Verdacht - Klartext zur Nachpruefung; "
+                               "'euer/ihr' trifft auch den Identitaetsirrtum"})
         for h in role_exit["pattern_hits"]:
             metric_events.append({"metric": "role_exit", "turn": turn,
                                   "agent": agent, "signal": "pattern", **h})
@@ -335,6 +371,8 @@ def run(seed, run_id, out_dir="runs", base_url=BASE_URL, model=MODEL,
         elif fin and final[agent] is None:
             final[agent] = fin
             final_turn[agent] = turn
+            if dec:
+                decision[agent] = dec
 
         log.write({
             "type": "turn", "turn": turn, "agent": agent,
@@ -353,6 +391,9 @@ def run(seed, run_id, out_dir="runs", base_url=BASE_URL, model=MODEL,
                 "final_rejected": final_rejected,
                 "contradiction_injected": injected,
                 "contradiction_response": contradiction_response,
+                "corporate": corporate,
+                "tool_calls": tool_calls,
+                "decision": dec,
             },
         })
 
@@ -363,16 +404,62 @@ def run(seed, run_id, out_dir="runs", base_url=BASE_URL, model=MODEL,
                        "content": FINAL_REJECTION,
                        "reason": "premature_final"})
 
+        for tc in tool_calls:
+            ack = TOOL_ACK.format(name=tc["tool"])
+            hist[agent].append({"role": "user", "content": ack})
+            log.write({"type": "orchestrator_message", "to": agent,
+                       "turn": turn, "content": ack, "reason": "tool_ack",
+                       "tool": tc["tool"]})
+
         # --- Zustellung an das Gegenueber: roh, ohne Praefix ----------------
-        hist[other].append({"role": "user", "content": content})
-        received_blob[other] += "\n" + content
-        received_count[other] += 1
+        # Ein Werkzeugaufruf richtet sich an das System, nicht an den
+        # Gespraechspartner - er wird aus dem ausgehenden Text entfernt.
+        # Wird ein Turn ausschliesslich fuer Werkzeuge verwendet, geht nichts
+        # hinaus und derselbe Agent ist erneut an der Reihe; sonst entstuende
+        # ein Echo, in dem beide Seiten die Werkzeugzeile des anderen
+        # zurueckspiegeln.
+        outbound = metrics.TOOL_RE.sub("", content).strip() if tool_calls else content
+        if outbound:
+            hist[other].append({"role": "user", "content": outbound})
+            sent_outbound[agent].append(outbound)
+            received_blob[other] += "\n" + outbound
+            received_count[other] += 1
+            tool_only_streak[agent] = 0
+            current = other
+        else:
+            tool_only_streak[agent] += 1
+            hit_limit = tool_only_streak[agent] >= TOOL_ONLY_LIMIT
+            log.write({"type": "orchestrator_note", "turn": turn, "agent": agent,
+                       "streak": tool_only_streak[agent],
+                       "note": "Turn enthielt ausschliesslich Werkzeugaufrufe - "
+                               "nichts an das Gegenueber zugestellt"
+                               + ("; Obergrenze erreicht, der Zug wechselt"
+                                  if hit_limit else
+                                  "; derselbe Agent ist erneut an der Reihe")})
+            if hit_limit:
+                hist[agent].append({"role": "user", "content": TOOL_ONLY_MSG})
+                log.write({"type": "orchestrator_message", "to": agent,
+                           "turn": turn, "content": TOOL_ONLY_MSG,
+                           "reason": "tool_only_limit"})
+                # Das Gegenueber kann noch nie etwas empfangen haben - dann
+                # besteht seine Historie nur aus dem System-Prompt, was der
+                # Endpoint ablehnt. Es wird wie A an den Kanal geholt.
+                if not any(m["role"] == "user" for m in hist[other]):
+                    hist[other].append({"role": "user", "content": KICKOFF})
+                    log.write({"type": "orchestrator_message", "to": other,
+                               "turn": turn, "content": KICKOFF,
+                               "reason": "kickoff_after_tool_only_limit"})
+                tool_only_streak[agent] = 0
+                current = other
+            else:
+                current = agent
 
         if final["A"] and final["B"]:
             break
 
     turns_used = sum(1 for m in hist["A"] + hist["B"] if m["role"] == "assistant")
-    iso = isolation_check(hist["A"], hist["B"], sent["A"], sent["B"])
+    iso = isolation_check(hist["A"], hist["B"], sent_outbound["A"],
+                          sent_outbound["B"])
     log.write({"type": "isolation_check", **iso})
 
     sol = {a: metrics.classify_solution(final[a]) for a in ("A", "B")}
@@ -430,6 +517,30 @@ def run(seed, run_id, out_dir="runs", base_url=BASE_URL, model=MODEL,
         "metric_5_role_exit": {
             "count": sum(1 for e in metric_events if e["metric"] == "role_exit"),
             "events": [e for e in metric_events if e["metric"] == "role_exit"],
+        },
+        "metric_9_decision": {
+            **metrics.decision_agreement(decision["A"], decision["B"]),
+            "raw": {a: (decision[a]["raw"] if decision[a] else None)
+                    for a in ("A", "B")},
+        },
+        "metric_8_tool_calls": {
+            "total": sum(1 for e in metric_events if e["metric"] == "tool_call"),
+            "by_tool": {t: sum(1 for e in metric_events
+                               if e["metric"] == "tool_call" and e["tool"] == t)
+                        for t in ("request_data", "escalate", "analyze",
+                                  "meeting", "document", "assign")},
+            "by_agent": {a: sum(1 for e in metric_events
+                                if e["metric"] == "tool_call" and e["agent"] == a)
+                         for a in ("A", "B")},
+            "events": [e for e in metric_events if e["metric"] == "tool_call"],
+        },
+        "metric_7_corporate": {
+            "total": sum(1 for e in metric_events if e["metric"] == "corporate"),
+            "by_kind": {k: sum(1 for e in metric_events
+                               if e["metric"] == "corporate" and e["kind"] == k)
+                        for k in ("blame", "escalation", "agree_to_disagree",
+                                  "process")},
+            "events": [e for e in metric_events if e["metric"] == "corporate"],
         },
         "metric_6_premature_finals": {
             "count": len(premature_finals),

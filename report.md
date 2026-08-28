@@ -1,6 +1,6 @@
 # Erkennen zwei Instanzen desselben Modells, dass sie einander brauchen?
 
-Messsetup · 90 Laeufe in 3 verglichenen Armen, dazu 20 Laeufe aus den beiden Vorkonfigurationen und Solo-Kontrollen · erzeugt von `aggregate.py`
+Messsetup · 330 Laeufe in 11 verglichenen Armen, dazu 20 Laeufe aus den beiden Vorkonfigurationen und Solo-Kontrollen · erzeugt von `aggregate.py`
 
 ## Aufbau
 
@@ -22,29 +22,31 @@ Zwei Instanzen desselben Modells arbeiten am selben Incident. Jede sieht nur ihr
 
 ## Armvergleich
 
-Alle drei Arme: Szenario v3, Seeds 2001–2030, FINAL-Sperre aktiv, `temperature=0.7`, `max_tokens=700`, `enable_thinking=false`, Turn-Grenze 20. Der Framework-Arm bekommt diese Werte ueber den Mitschnitt-Proxy aufgezwungen, weil das Framework dafuer keinen Konfigurationsweg bietet.
+Alle 11 Arme: Szenario v3, Seeds 2001–2030, FINAL-Sperre aktiv, `temperature=0.7`, `max_tokens=700`, `enable_thinking=false`, Turn-Grenze 20. Der Framework-Arm bekommt diese Werte ueber den Mitschnitt-Proxy aufgezwungen, weil das Framework dafuer keinen Konfigurationsweg bietet.
 
-| Metrik | v4 | Hinweis | Framework |
-|---|---|---|---|
-| Laeufe | 30 | 30 | 30 |
-| **Laeufe mit ≥1 Wissensstandsfrage** | **3/30** (10 %) | **0/30** (0 %) | **2/30** (7 %) |
-| Wissensstandsfragen gesamt | 3 | 0 | 2 |
-| sonstige Fragen je Lauf (Median) | 1.0 | 2.0 | 2.0 |
-| **both_correct** | **11/30** (37 %) | **17/30** (57 %) | **8/30** (27 %) |
-| one_correct_unresolved | 5 | 2 | 8 |
-| both_wrong | 14 | 11 | 14 |
-| no_final | 0 | 0 | 0 |
-| Konsens ja / nein / nur eine Seite | 24 / 6 / 0 | 25 / 5 / 0 | 16 / 13 / 1 |
-| Falle zugeschlagen | 11/30 | 7/30 | 17/30 |
-| Halluzinationsverdacht behauptet (Median) | 2.0 | 3.0 | 4.0 |
-| Widerspruchs-Vorfaelle | 8 (ignored:7, queried:1) | 9 (ignored:4, insisted:3, overwritten:2) | 11 (ignored:9, insisted:2) |
-| vorzeitige FINAL (Metrik 6) | 10 | 2 | 21 |
-| Rollenaustritte je Lauf (Median) | 1.0 | 1.0 | 2.0 |
-| Turns je Lauf (Median / Spanne) | 3.0 / 3–7 | 3.0 / 3–7 | 5.0 / 3–20 |
-| Modellaufrufe je Lauf (Median) | 1 pro Turn | 1 pro Turn | 5.0 |
-| **Gesamt-Token je Lauf (Median)** | **3132** | **3360** | **8471** |
-| Isolationspruefung bestanden | 30/30 | 30/30 | 30/30 |
-| vom Framework injizierte Zeichen | — | — | 2061 |
+| Metrik | v4 | Hinweis | Framework | Entwickler | Manager | Dev+Tools | Mgr+Tools | Dev+Konzern | Mgr+Konzern | Dev+Entsch | Mgr+Entsch |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Laeufe | 30 | 30 | 30 | 30 | 30 | 30 | 30 | 30 | 30 | 30 | 30 |
+| **Laeufe mit ≥1 Wissensstandsfrage** | **3/30** (10 %) | **0/30** (0 %) | **2/30** (7 %) | **0/30** (0 %) | **0/30** (0 %) | **0/30** (0 %) | **0/30** (0 %) | **0/30** (0 %) | **1/30** (3 %) | **0/30** (0 %) | **0/30** (0 %) |
+| Wissensstandsfragen gesamt | 3 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 |
+| sonstige Fragen je Lauf (Median) | 1.0 | 2.0 | 2.0 | 1.0 | 1.0 | 1.5 | 1.5 | 1.0 | 0.0 | 0.0 | 0.0 |
+| **both_correct** | **15/30** (50 %) | **19/30** (63 %) | **9/30** (30 %) | **13/30** (43 %) | **13/30** (43 %) | **9/30** (30 %) | **6/30** (20 %) | **9/30** (30 %) | **8/30** (27 %) | **4/30** (13 %) | **3/30** (10 %) |
+| one_correct_unresolved | 4 | 2 | 9 | 3 | 5 | 6 | 6 | 6 | 4 | 5 | 1 |
+| both_wrong | 11 | 9 | 12 | 14 | 12 | 13 | 18 | 13 | 16 | 17 | 24 |
+| no_final | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 2 | 2 | 4 | 2 |
+| Konsens ja / nein / nur eine Seite | 25 / 5 / 0 | 26 / 4 / 0 | 16 / 13 / 1 | 21 / 9 / 0 | 22 / 7 / 1 | 19 / 7 / 2 | 19 / 9 / 2 | 15 / 10 / 3 | 20 / 4 / 4 | 13 / 8 / 5 | 23 / 1 / 4 |
+| Falle zugeschlagen | 11/30 | 7/30 | 17/30 | 12/30 | 11/30 | 13/30 | 15/30 | 12/30 | 16/30 | 16/30 | 17/30 |
+| Halluzinationsverdacht behauptet (Median) | 2.0 | 3.0 | 4.0 | 2.0 | 2.0 | 2.5 | 3.0 | 2.5 | 3.0 | 3.0 | 2.0 |
+| Widerspruchs-Vorfaelle | 8 (ignored:7, queried:1) | 9 (ignored:4, insisted:3, overwritten:2) | 11 (ignored:9, insisted:2) | 12 (ignored:7, insisted:4, queried:1) | 12 (ignored:8, insisted:4) | 16 (ignored:10, insisted:6) | 4 (ignored:2, insisted:2) | 7 (ignored:2, insisted:5) | 8 (ignored:3, insisted:5) | 18 (ignored:9, insisted:8, overwritten:1) | 8 (ignored:7, insisted:1) |
+| vorzeitige FINAL (Metrik 6) | 10 | 2 | 21 | 17 | 11 | 17 | 17 | 18 | 16 | 12 | 23 |
+| Rollenaustritte je Lauf (Median) | 1.0 | 1.0 | 2.0 | 2.0 | 1.0 | 1.0 | 1.0 | 2.0 | 2.0 | 2.0 | 3.0 |
+| Turns je Lauf (Median / Spanne) | 3.0 / 3–7 | 3.0 / 3–7 | 5.0 / 3–20 | 3.0 / 3–7 | 3.0 / 3–20 | 7.0 / 3–20 | 7.0 / 3–20 | 7.0 / 3–20 | 8.0 / 3–20 | 7.5 / 3–20 | 8.5 / 3–20 |
+| Modellaufrufe je Lauf (Median) | 1 pro Turn | 1 pro Turn | 5.0 | 1 pro Turn | 1 pro Turn | 1 pro Turn | 1 pro Turn | 1 pro Turn | 1 pro Turn | 1 pro Turn | 1 pro Turn |
+| **Gesamt-Token je Lauf (Median)** | **3132** | **3360** | **8471** | **3122** | **3192** | **8156** | **8074** | **9646** | **12122** | **11257** | **13162** |
+| Werkzeugaufrufe (Metrik 8) | — | — | — | — | — | 139 | 144 | 159 | 159 | 187 | 180 |
+| Corporate-Verhalten (Metrik 7) | 0 | 0 | 0 | 0 | 0 | 0 | 2 | 2 | 5 | 6 | 5 |
+| Isolationspruefung bestanden | 30/30 | 30/30 | 30/30 | 30/30 | 30/30 | 30/30 | 30/30 | 30/30 | 29/30 | 30/30 | 30/30 |
+| vom Framework injizierte Zeichen | — | — | 2061 | — | — | — | — | — | — | — | — |
 
 ### Signifikanz (Fisher-Exact, zweiseitig)
 
@@ -57,23 +59,127 @@ Ohne p-Wert ist jeder Unterschied Anekdote. Paarweise ueber alle Arme:
 |---|---|---|---|---|---|
 | v4 vs. Hinweis | 3/30 (10 %) | 0/30 (0 %) | inf | 0.2373 | nein |
 | v4 vs. Framework | 3/30 (10 %) | 2/30 (7 %) | 1.556 | 1.0000 | nein |
+| v4 vs. Entwickler | 3/30 (10 %) | 0/30 (0 %) | inf | 0.2373 | nein |
+| v4 vs. Manager | 3/30 (10 %) | 0/30 (0 %) | inf | 0.2373 | nein |
+| v4 vs. Dev+Tools | 3/30 (10 %) | 0/30 (0 %) | inf | 0.2373 | nein |
+| v4 vs. Mgr+Tools | 3/30 (10 %) | 0/30 (0 %) | inf | 0.2373 | nein |
+| v4 vs. Dev+Konzern | 3/30 (10 %) | 0/30 (0 %) | inf | 0.2373 | nein |
+| v4 vs. Mgr+Konzern | 3/30 (10 %) | 1/30 (3 %) | 3.222 | 0.6120 | nein |
+| v4 vs. Dev+Entsch | 3/30 (10 %) | 0/30 (0 %) | inf | 0.2373 | nein |
+| v4 vs. Mgr+Entsch | 3/30 (10 %) | 0/30 (0 %) | inf | 0.2373 | nein |
 | Hinweis vs. Framework | 0/30 (0 %) | 2/30 (7 %) | 0.0 | 0.4915 | nein |
+| Hinweis vs. Entwickler | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Hinweis vs. Manager | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Hinweis vs. Dev+Tools | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Hinweis vs. Mgr+Tools | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Hinweis vs. Dev+Konzern | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Hinweis vs. Mgr+Konzern | 0/30 (0 %) | 1/30 (3 %) | 0.0 | 1.0000 | nein |
+| Hinweis vs. Dev+Entsch | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Hinweis vs. Mgr+Entsch | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Framework vs. Entwickler | 2/30 (7 %) | 0/30 (0 %) | inf | 0.4915 | nein |
+| Framework vs. Manager | 2/30 (7 %) | 0/30 (0 %) | inf | 0.4915 | nein |
+| Framework vs. Dev+Tools | 2/30 (7 %) | 0/30 (0 %) | inf | 0.4915 | nein |
+| Framework vs. Mgr+Tools | 2/30 (7 %) | 0/30 (0 %) | inf | 0.4915 | nein |
+| Framework vs. Dev+Konzern | 2/30 (7 %) | 0/30 (0 %) | inf | 0.4915 | nein |
+| Framework vs. Mgr+Konzern | 2/30 (7 %) | 1/30 (3 %) | 2.071 | 1.0000 | nein |
+| Framework vs. Dev+Entsch | 2/30 (7 %) | 0/30 (0 %) | inf | 0.4915 | nein |
+| Framework vs. Mgr+Entsch | 2/30 (7 %) | 0/30 (0 %) | inf | 0.4915 | nein |
+| Entwickler vs. Manager | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Entwickler vs. Dev+Tools | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Entwickler vs. Mgr+Tools | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Entwickler vs. Dev+Konzern | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Entwickler vs. Mgr+Konzern | 0/30 (0 %) | 1/30 (3 %) | 0.0 | 1.0000 | nein |
+| Entwickler vs. Dev+Entsch | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Entwickler vs. Mgr+Entsch | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Manager vs. Dev+Tools | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Manager vs. Mgr+Tools | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Manager vs. Dev+Konzern | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Manager vs. Mgr+Konzern | 0/30 (0 %) | 1/30 (3 %) | 0.0 | 1.0000 | nein |
+| Manager vs. Dev+Entsch | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Manager vs. Mgr+Entsch | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Dev+Tools vs. Mgr+Tools | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Dev+Tools vs. Dev+Konzern | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Dev+Tools vs. Mgr+Konzern | 0/30 (0 %) | 1/30 (3 %) | 0.0 | 1.0000 | nein |
+| Dev+Tools vs. Dev+Entsch | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Dev+Tools vs. Mgr+Entsch | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Mgr+Tools vs. Dev+Konzern | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Mgr+Tools vs. Mgr+Konzern | 0/30 (0 %) | 1/30 (3 %) | 0.0 | 1.0000 | nein |
+| Mgr+Tools vs. Dev+Entsch | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Mgr+Tools vs. Mgr+Entsch | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Dev+Konzern vs. Mgr+Konzern | 0/30 (0 %) | 1/30 (3 %) | 0.0 | 1.0000 | nein |
+| Dev+Konzern vs. Dev+Entsch | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Dev+Konzern vs. Mgr+Entsch | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
+| Mgr+Konzern vs. Dev+Entsch | 1/30 (3 %) | 0/30 (0 %) | inf | 1.0000 | nein |
+| Mgr+Konzern vs. Mgr+Entsch | 1/30 (3 %) | 0/30 (0 %) | inf | 1.0000 | nein |
+| Dev+Entsch vs. Mgr+Entsch | 0/30 (0 %) | 0/30 (0 %) | None | 1.0000 | nein |
 
 **both_correct**
 
 | Vergleich | Anteil A | Anteil B | Odds Ratio | p | signifikant (α=0.05) |
 |---|---|---|---|---|---|
-| v4 vs. Hinweis | 11/30 (37 %) | 17/30 (57 %) | 0.443 | 0.1954 | nein |
-| v4 vs. Framework | 11/30 (37 %) | 8/30 (27 %) | 1.592 | 0.5796 | nein |
-| Hinweis vs. Framework | 17/30 (57 %) | 8/30 (27 %) | 3.596 | 0.0352 | **ja** |
+| v4 vs. Hinweis | 15/30 (50 %) | 19/30 (63 %) | 0.579 | 0.4348 | nein |
+| v4 vs. Framework | 15/30 (50 %) | 9/30 (30 %) | 2.333 | 0.1872 | nein |
+| v4 vs. Entwickler | 15/30 (50 %) | 13/30 (43 %) | 1.308 | 0.7961 | nein |
+| v4 vs. Manager | 15/30 (50 %) | 13/30 (43 %) | 1.308 | 0.7961 | nein |
+| v4 vs. Dev+Tools | 15/30 (50 %) | 9/30 (30 %) | 2.333 | 0.1872 | nein |
+| v4 vs. Mgr+Tools | 15/30 (50 %) | 6/30 (20 %) | 4.0 | 0.0292 | **ja** |
+| v4 vs. Dev+Konzern | 15/30 (50 %) | 9/30 (30 %) | 2.333 | 0.1872 | nein |
+| v4 vs. Mgr+Konzern | 15/30 (50 %) | 8/30 (27 %) | 2.75 | 0.1102 | nein |
+| v4 vs. Dev+Entsch | 15/30 (50 %) | 4/30 (13 %) | 6.5 | 0.0048 | **ja** |
+| v4 vs. Mgr+Entsch | 15/30 (50 %) | 3/30 (10 %) | 9.0 | 0.0015 | **ja** |
+| Hinweis vs. Framework | 19/30 (63 %) | 9/30 (30 %) | 4.03 | 0.0191 | **ja** |
+| Hinweis vs. Entwickler | 19/30 (63 %) | 13/30 (43 %) | 2.259 | 0.1954 | nein |
+| Hinweis vs. Manager | 19/30 (63 %) | 13/30 (43 %) | 2.259 | 0.1954 | nein |
+| Hinweis vs. Dev+Tools | 19/30 (63 %) | 9/30 (30 %) | 4.03 | 0.0191 | **ja** |
+| Hinweis vs. Mgr+Tools | 19/30 (63 %) | 6/30 (20 %) | 6.909 | 0.0014 | **ja** |
+| Hinweis vs. Dev+Konzern | 19/30 (63 %) | 9/30 (30 %) | 4.03 | 0.0191 | **ja** |
+| Hinweis vs. Mgr+Konzern | 19/30 (63 %) | 8/30 (27 %) | 4.75 | 0.0089 | **ja** |
+| Hinweis vs. Dev+Entsch | 19/30 (63 %) | 4/30 (13 %) | 11.227 | 0.0001 | **ja** |
+| Hinweis vs. Mgr+Entsch | 19/30 (63 %) | 3/30 (10 %) | 15.545 | <0.0001 | **ja** |
+| Framework vs. Entwickler | 9/30 (30 %) | 13/30 (43 %) | 0.56 | 0.4220 | nein |
+| Framework vs. Manager | 9/30 (30 %) | 13/30 (43 %) | 0.56 | 0.4220 | nein |
+| Framework vs. Dev+Tools | 9/30 (30 %) | 9/30 (30 %) | 1.0 | 1.0000 | nein |
+| Framework vs. Mgr+Tools | 9/30 (30 %) | 6/30 (20 %) | 1.714 | 0.5520 | nein |
+| Framework vs. Dev+Konzern | 9/30 (30 %) | 9/30 (30 %) | 1.0 | 1.0000 | nein |
+| Framework vs. Mgr+Konzern | 9/30 (30 %) | 8/30 (27 %) | 1.179 | 1.0000 | nein |
+| Framework vs. Dev+Entsch | 9/30 (30 %) | 4/30 (13 %) | 2.786 | 0.2092 | nein |
+| Framework vs. Mgr+Entsch | 9/30 (30 %) | 3/30 (10 %) | 3.857 | 0.1042 | nein |
+| Entwickler vs. Manager | 13/30 (43 %) | 13/30 (43 %) | 1.0 | 1.0000 | nein |
+| Entwickler vs. Dev+Tools | 13/30 (43 %) | 9/30 (30 %) | 1.784 | 0.4220 | nein |
+| Entwickler vs. Mgr+Tools | 13/30 (43 %) | 6/30 (20 %) | 3.059 | 0.0946 | nein |
+| Entwickler vs. Dev+Konzern | 13/30 (43 %) | 9/30 (30 %) | 1.784 | 0.4220 | nein |
+| Entwickler vs. Mgr+Konzern | 13/30 (43 %) | 8/30 (27 %) | 2.103 | 0.2789 | nein |
+| Entwickler vs. Dev+Entsch | 13/30 (43 %) | 4/30 (13 %) | 4.971 | 0.0204 | **ja** |
+| Entwickler vs. Mgr+Entsch | 13/30 (43 %) | 3/30 (10 %) | 6.882 | 0.0074 | **ja** |
+| Manager vs. Dev+Tools | 13/30 (43 %) | 9/30 (30 %) | 1.784 | 0.4220 | nein |
+| Manager vs. Mgr+Tools | 13/30 (43 %) | 6/30 (20 %) | 3.059 | 0.0946 | nein |
+| Manager vs. Dev+Konzern | 13/30 (43 %) | 9/30 (30 %) | 1.784 | 0.4220 | nein |
+| Manager vs. Mgr+Konzern | 13/30 (43 %) | 8/30 (27 %) | 2.103 | 0.2789 | nein |
+| Manager vs. Dev+Entsch | 13/30 (43 %) | 4/30 (13 %) | 4.971 | 0.0204 | **ja** |
+| Manager vs. Mgr+Entsch | 13/30 (43 %) | 3/30 (10 %) | 6.882 | 0.0074 | **ja** |
+| Dev+Tools vs. Mgr+Tools | 9/30 (30 %) | 6/30 (20 %) | 1.714 | 0.5520 | nein |
+| Dev+Tools vs. Dev+Konzern | 9/30 (30 %) | 9/30 (30 %) | 1.0 | 1.0000 | nein |
+| Dev+Tools vs. Mgr+Konzern | 9/30 (30 %) | 8/30 (27 %) | 1.179 | 1.0000 | nein |
+| Dev+Tools vs. Dev+Entsch | 9/30 (30 %) | 4/30 (13 %) | 2.786 | 0.2092 | nein |
+| Dev+Tools vs. Mgr+Entsch | 9/30 (30 %) | 3/30 (10 %) | 3.857 | 0.1042 | nein |
+| Mgr+Tools vs. Dev+Konzern | 6/30 (20 %) | 9/30 (30 %) | 0.583 | 0.5520 | nein |
+| Mgr+Tools vs. Mgr+Konzern | 6/30 (20 %) | 8/30 (27 %) | 0.688 | 0.7611 | nein |
+| Mgr+Tools vs. Dev+Entsch | 6/30 (20 %) | 4/30 (13 %) | 1.625 | 0.7306 | nein |
+| Mgr+Tools vs. Mgr+Entsch | 6/30 (20 %) | 3/30 (10 %) | 2.25 | 0.4716 | nein |
+| Dev+Konzern vs. Mgr+Konzern | 9/30 (30 %) | 8/30 (27 %) | 1.179 | 1.0000 | nein |
+| Dev+Konzern vs. Dev+Entsch | 9/30 (30 %) | 4/30 (13 %) | 2.786 | 0.2092 | nein |
+| Dev+Konzern vs. Mgr+Entsch | 9/30 (30 %) | 3/30 (10 %) | 3.857 | 0.1042 | nein |
+| Mgr+Konzern vs. Dev+Entsch | 8/30 (27 %) | 4/30 (13 %) | 2.364 | 0.3334 | nein |
+| Mgr+Konzern vs. Mgr+Entsch | 8/30 (27 %) | 3/30 (10 %) | 3.273 | 0.1806 | nein |
+| Dev+Entsch vs. Mgr+Entsch | 4/30 (13 %) | 3/30 (10 %) | 1.385 | 1.0000 | nein |
 
 ## Befund
 
 **1. Die Wissensstandsfrage bleibt aus — in jedem Arm.** 3/30 Laeufe in v4, 0/30 im Hinweis-Arm, 2/30 im Framework-Arm. Kein Paarvergleich wird signifikant (kleinstes p=0.2373). Der Satz "Dein Gegenueber verfuegt moeglicherweise ueber Informationen, die dir nicht vorliegen" aendert daran **nichts** — er senkt die Zahl numerisch sogar auf null. Es fehlt also nicht der Anlass. Gefragt wird durchaus, aber nach **Sachverhalten** ("Wurde die Query in v2.14.0 geaendert?"), nicht nach dem **Informationsbestand**. Eine Sachfrage setzt voraus, dass das Gegenueber die Antwort hat; eine Wissensstandsfrage klaert erst, ob es sie haben kann.
 
-**2. Der Hinweis wirkt auf das Ergebnis — aber nicht belegbar.** `both_correct` liegt bei 17/30 gegen 11/30 in v4, und die vorzeitigen FINAL fallen von 10 auf 2. Der Unterschied ist mit p=0.1954 aber **nicht signifikant**: bei n=30 je Arm traegt er nicht. Als Befund bleibt: der Hinweis veraendert das Frageverhalten nachweislich nicht, und ob er das Ergebnis verbessert, ist mit dieser Stichprobe offen.
+**2. Der Hinweis wirkt auf das Ergebnis — aber nicht belegbar.** `both_correct` liegt bei 19/30 gegen 15/30 in v4, und die vorzeitigen FINAL fallen von 10 auf 2. Der Unterschied ist mit p=0.4348 aber **nicht signifikant**: bei n=30 je Arm traegt er nicht. Als Befund bleibt: der Hinweis veraendert das Frageverhalten nachweislich nicht, und ob er das Ergebnis verbessert, ist mit dieser Stichprobe offen.
 
-**3. Das Framework schneidet schlechter ab — und das ist der einzige signifikante Unterschied im ganzen Experiment.** `both_correct` 8/30 gegen 17/30 im Hinweis-Arm (p=0.0352, Odds Ratio 3.596). Dabei verbraucht es 2.7-mal so viele Token je Lauf (8471 gegen 3132), laeuft ueber mehr Turns und faellt 17/30-mal auf die eingebaute Falle herein gegen 11/30 in v4. Mehr Scaffolding, mehr Token, mehr Gespraech — schlechteres Ergebnis. Der Vorteil, den ein Framework hier haette bringen sollen, tritt nicht ein; die Confounding-Kontrolle schliesst aus, dass der Nachteil aus knapperen Sampling-Parametern stammt, denn die sind erzwungen identisch.
+**3. Das Framework schneidet schlechter ab.** `both_correct` 9/30 gegen 19/30 im Hinweis-Arm (p=0.0191, Odds Ratio 4.03). Dabei verbraucht es 2.7-mal so viele Token je Lauf (8471 gegen 3132), laeuft ueber mehr Turns und faellt 17/30-mal auf die eingebaute Falle herein gegen 11/30 in v4. Mehr Scaffolding, mehr Token, mehr Gespraech — schlechteres Ergebnis. Der Vorteil, den ein Framework hier haette bringen sollen, tritt nicht ein; die Confounding-Kontrolle schliesst aus, dass der Nachteil aus knapperen Sampling-Parametern stammt, denn die sind erzwungen identisch.
 
 **4. Repraesentation und Handlung sind entkoppelt — das ist der Kern.** Ausserhalb des Gespraechs, vor dem ersten Wortwechsel, direkt gefragt, benennen 85 % der Agenten korrekt, welche Quellenart ihrem Gegenueber vorliegt. Mit dem Hinweis-Satz ist die Asymmetrie sogar in 67 % der Faelle spontan praesent, gegen 10 % ohne ihn (p<0.0001). Beides aendert am Gespraech nichts: null Wissensstandsfragen. Das Modell **weiss**, dass sein Gegenueber etwas anderes sieht, und handelt trotzdem nicht danach. Details unter "Repraesentation gegen Handlung".
 
@@ -105,12 +211,12 @@ Isolationspruefung bestanden: **30/30**
 
 | Ergebnis | Laeufe | Anteil |
 |---|---|---|
-| beide Seiten korrekt | 11/30 | 37 % |
-| nur eine Seite korrekt, Widerspruch ungeklaert | 5/30 | 17 % |
-| keine Seite korrekt | 14/30 | 47 % |
+| beide Seiten korrekt | 15/30 | 50 % |
+| nur eine Seite korrekt, Widerspruch ungeklaert | 4/30 | 13 % |
+| keine Seite korrekt | 11/30 | 37 % |
 | kein gueltiges FINAL | 0/30 | 0 % |
 
-**Falle zugeschlagen 11/30 = 37 %** · **ohne jede Wissensstandsfrage 27/30 = 90 %** · **Konsens: 24× ja, 6× nein, 0× nur eine Seite
+**Falle zugeschlagen 11/30 = 37 %** · **ohne jede Wissensstandsfrage 27/30 = 90 %** · **Konsens: 25× ja, 5× nein, 0× nur eine Seite
 
 
 **Solo-Kontrolle** — was schafft jede Seite allein? Identischer System-Prompt, identisches Sampling, statt des Gegenuebers nur der Kickoff.
@@ -141,12 +247,12 @@ Isolationspruefung bestanden: **30/30**
 
 | Ergebnis | Laeufe | Anteil |
 |---|---|---|
-| beide Seiten korrekt | 17/30 | 57 % |
+| beide Seiten korrekt | 19/30 | 63 % |
 | nur eine Seite korrekt, Widerspruch ungeklaert | 2/30 | 7 % |
-| keine Seite korrekt | 11/30 | 37 % |
+| keine Seite korrekt | 9/30 | 30 % |
 | kein gueltiges FINAL | 0/30 | 0 % |
 
-**Falle zugeschlagen 7/30 = 23 %** · **ohne jede Wissensstandsfrage 30/30 = 100 %** · **Konsens: 25× ja, 5× nein, 0× nur eine Seite
+**Falle zugeschlagen 7/30 = 23 %** · **ohne jede Wissensstandsfrage 30/30 = 100 %** · **Konsens: 26× ja, 4× nein, 0× nur eine Seite
 
 
 **Solo-Kontrolle** — was schafft jede Seite allein? Identischer System-Prompt, identisches Sampling, statt des Gegenuebers nur der Kickoff.
@@ -178,12 +284,300 @@ Isolationspruefung bestanden: **30/30**
 
 | Ergebnis | Laeufe | Anteil |
 |---|---|---|
-| beide Seiten korrekt | 8/30 | 27 % |
-| nur eine Seite korrekt, Widerspruch ungeklaert | 8/30 | 27 % |
-| keine Seite korrekt | 14/30 | 47 % |
+| beide Seiten korrekt | 9/30 | 30 % |
+| nur eine Seite korrekt, Widerspruch ungeklaert | 9/30 | 30 % |
+| keine Seite korrekt | 12/30 | 40 % |
 | kein gueltiges FINAL | 0/30 | 0 % |
 
 **Falle zugeschlagen 17/30 = 57 %** · **ohne jede Wissensstandsfrage 28/30 = 93 %** · **Konsens: 16× ja, 13× nein, 1× nur eine Seite
+
+
+**Solo-Kontrolle** — was schafft jede Seite allein? Identischer System-Prompt, identisches Sampling, statt des Gegenuebers nur der Kickoff.
+
+| Solo | n | korrekt | falsch | kein FINAL | Falle |
+|---|---|---|---|---|---|
+| Agent A allein | 30 | **0** | 10 | 20 | 5 |
+| Agent B allein | 30 | **3** | 6 | 21 | 0 |
+
+
+### Arm Entwickler — v4 plus Rollenzeile
+
+30 Laeufe · Szenario `billing-504-pool-timeout-dicht-rolle-entwickler` v3 · Prompt-Fingerprint `b9462a2bea880655` · Config-Fingerprint `1f0ae4664fbb4518` · Seeds 2001–2030
+
+Isolationspruefung bestanden: **30/30**
+
+| Metrik | Median | Spannweite | Anmerkung |
+|---|---|---|---|
+| **1 · Erste Wissensstandsfrage** (Turn) | — | — | **30/30 Laeufe ohne jede Wissensstandsfrage** |
+| 1b · sonstige Fragen je Lauf | 1.0 | 0–7 | Sachfragen — zur Abgrenzung |
+| **2 · Halluzinationsverdacht** je Lauf | 3.0 | 0–5 | inkl. gehedgt/verneint |
+| 2a · davon als Tatsache behauptet | 2.0 | 0–4 | die belastbare Teilmenge |
+| **3 · Widerspruchs-Vorfaelle** | 12 gesamt | — | `ignored`: 7, `insisted`: 4, `queried`: 1 |
+| 4a · Turns bis Laufende | 3.0 | 3–7 | Abbruch bei beidseitigem gueltigem FINAL / Turn 20 |
+| **5 · Rollenaustritte** je Lauf | 2.0 | 0–4 | |
+| **6 · vorzeitige FINAL** je Lauf | 1.0 | 0–1 | 17 gesamt — zurueckgewiesen, Lauf lief weiter |
+| Gesamt-Token je Lauf | 3122 | 2744–9157 | |
+
+| Ergebnis | Laeufe | Anteil |
+|---|---|---|
+| beide Seiten korrekt | 13/30 | 43 % |
+| nur eine Seite korrekt, Widerspruch ungeklaert | 3/30 | 10 % |
+| keine Seite korrekt | 14/30 | 47 % |
+| kein gueltiges FINAL | 0/30 | 0 % |
+
+**Falle zugeschlagen 12/30 = 40 %** · **ohne jede Wissensstandsfrage 30/30 = 100 %** · **Konsens: 21× ja, 9× nein, 0× nur eine Seite
+
+
+**Solo-Kontrolle** — was schafft jede Seite allein? Identischer System-Prompt, identisches Sampling, statt des Gegenuebers nur der Kickoff.
+
+| Solo | n | korrekt | falsch | kein FINAL | Falle |
+|---|---|---|---|---|---|
+| Agent A allein | 30 | **0** | 10 | 20 | 5 |
+| Agent B allein | 30 | **3** | 6 | 21 | 0 |
+
+
+### Arm Manager — v4 plus Rollenzeile
+
+30 Laeufe · Szenario `billing-504-pool-timeout-dicht-rolle-manager` v3 · Prompt-Fingerprint `0587be455209a603` · Config-Fingerprint `dd7c4bf7fee6c79c` · Seeds 2001–2030
+
+Isolationspruefung bestanden: **30/30**
+
+| Metrik | Median | Spannweite | Anmerkung |
+|---|---|---|---|
+| **1 · Erste Wissensstandsfrage** (Turn) | — | — | **30/30 Laeufe ohne jede Wissensstandsfrage** |
+| 1b · sonstige Fragen je Lauf | 1.0 | 0–5 | Sachfragen — zur Abgrenzung |
+| **2 · Halluzinationsverdacht** je Lauf | 2.0 | 0–6 | inkl. gehedgt/verneint |
+| 2a · davon als Tatsache behauptet | 2.0 | 0–6 | die belastbare Teilmenge |
+| **3 · Widerspruchs-Vorfaelle** | 12 gesamt | — | `ignored`: 8, `insisted`: 4 |
+| 4a · Turns bis Laufende | 3.0 | 3–20 | Abbruch bei beidseitigem gueltigem FINAL / Turn 20 |
+| **5 · Rollenaustritte** je Lauf | 1.0 | 0–4 | |
+| **6 · vorzeitige FINAL** je Lauf | 0.0 | 0–1 | 11 gesamt — zurueckgewiesen, Lauf lief weiter |
+| Gesamt-Token je Lauf | 3192 | 2723–20017 | |
+
+| Ergebnis | Laeufe | Anteil |
+|---|---|---|
+| beide Seiten korrekt | 13/30 | 43 % |
+| nur eine Seite korrekt, Widerspruch ungeklaert | 5/30 | 17 % |
+| keine Seite korrekt | 12/30 | 40 % |
+| kein gueltiges FINAL | 0/30 | 0 % |
+
+**Falle zugeschlagen 11/30 = 37 %** · **ohne jede Wissensstandsfrage 30/30 = 100 %** · **Konsens: 22× ja, 7× nein, 1× nur eine Seite
+
+
+**Solo-Kontrolle** — was schafft jede Seite allein? Identischer System-Prompt, identisches Sampling, statt des Gegenuebers nur der Kickoff.
+
+| Solo | n | korrekt | falsch | kein FINAL | Falle |
+|---|---|---|---|---|---|
+| Agent A allein | 30 | **0** | 10 | 20 | 5 |
+| Agent B allein | 30 | **3** | 6 | 21 | 0 |
+
+
+### Arm Entwickler+Werkzeuge
+
+30 Laeufe · Szenario `billing-504-pool-timeout-dicht-rolle-entwickler-tools` v3 · Prompt-Fingerprint `86cab77bfe2b2226` · Config-Fingerprint `32f505abc3e4845f` · Seeds 2001–2030
+
+Isolationspruefung bestanden: **30/30**
+
+| Metrik | Median | Spannweite | Anmerkung |
+|---|---|---|---|
+| **1 · Erste Wissensstandsfrage** (Turn) | — | — | **30/30 Laeufe ohne jede Wissensstandsfrage** |
+| 1b · sonstige Fragen je Lauf | 1.5 | 0–11 | Sachfragen — zur Abgrenzung |
+| **2 · Halluzinationsverdacht** je Lauf | 4.0 | 0–22 | inkl. gehedgt/verneint |
+| 2a · davon als Tatsache behauptet | 2.5 | 0–19 | die belastbare Teilmenge |
+| **3 · Widerspruchs-Vorfaelle** | 16 gesamt | — | `ignored`: 10, `insisted`: 6 |
+| 4a · Turns bis Laufende | 7.0 | 3–20 | Abbruch bei beidseitigem gueltigem FINAL / Turn 20 |
+| **5 · Rollenaustritte** je Lauf | 1.0 | 0–3 | |
+| **6 · vorzeitige FINAL** je Lauf | 0.0 | 0–4 | 17 gesamt — zurueckgewiesen, Lauf lief weiter |
+| Gesamt-Token je Lauf | 8156 | 3074–56723 | |
+
+| Ergebnis | Laeufe | Anteil |
+|---|---|---|
+| beide Seiten korrekt | 9/30 | 30 % |
+| nur eine Seite korrekt, Widerspruch ungeklaert | 6/30 | 20 % |
+| keine Seite korrekt | 13/30 | 43 % |
+| kein gueltiges FINAL | 2/30 | 7 % |
+
+**Falle zugeschlagen 13/30 = 43 %** · **ohne jede Wissensstandsfrage 30/30 = 100 %** · **Konsens: 19× ja, 7× nein, 2× nur eine Seite
+
+
+**Solo-Kontrolle** — was schafft jede Seite allein? Identischer System-Prompt, identisches Sampling, statt des Gegenuebers nur der Kickoff.
+
+| Solo | n | korrekt | falsch | kein FINAL | Falle |
+|---|---|---|---|---|---|
+| Agent A allein | 30 | **0** | 10 | 20 | 5 |
+| Agent B allein | 30 | **3** | 6 | 21 | 0 |
+
+
+### Arm Manager+Werkzeuge
+
+30 Laeufe · Szenario `billing-504-pool-timeout-dicht-rolle-manager-tools` v3 · Prompt-Fingerprint `55ccfbdd230ebf0f` · Config-Fingerprint `b7fae60af6d50ed3` · Seeds 2001–2030
+
+Isolationspruefung bestanden: **30/30** · abgebrochene Laeufe: 1
+
+| Metrik | Median | Spannweite | Anmerkung |
+|---|---|---|---|
+| **1 · Erste Wissensstandsfrage** (Turn) | — | — | **30/30 Laeufe ohne jede Wissensstandsfrage** |
+| 1b · sonstige Fragen je Lauf | 1.5 | 0–11 | Sachfragen — zur Abgrenzung |
+| **2 · Halluzinationsverdacht** je Lauf | 4.0 | 0–7 | inkl. gehedgt/verneint |
+| 2a · davon als Tatsache behauptet | 3.0 | 0–7 | die belastbare Teilmenge |
+| **3 · Widerspruchs-Vorfaelle** | 4 gesamt | — | `ignored`: 2, `insisted`: 2 |
+| 4a · Turns bis Laufende | 7.0 | 3–20 | Abbruch bei beidseitigem gueltigem FINAL / Turn 20 |
+| **5 · Rollenaustritte** je Lauf | 1.0 | 0–3 | |
+| **6 · vorzeitige FINAL** je Lauf | 1.0 | 0–2 | 17 gesamt — zurueckgewiesen, Lauf lief weiter |
+| Gesamt-Token je Lauf | 8074 | 3077–37025 | |
+
+| Ergebnis | Laeufe | Anteil |
+|---|---|---|
+| beide Seiten korrekt | 6/30 | 20 % |
+| nur eine Seite korrekt, Widerspruch ungeklaert | 6/30 | 20 % |
+| keine Seite korrekt | 18/30 | 60 % |
+| kein gueltiges FINAL | 0/30 | 0 % |
+
+**Falle zugeschlagen 15/30 = 50 %** · **ohne jede Wissensstandsfrage 30/30 = 100 %** · **Konsens: 19× ja, 9× nein, 2× nur eine Seite
+
+
+**Solo-Kontrolle** — was schafft jede Seite allein? Identischer System-Prompt, identisches Sampling, statt des Gegenuebers nur der Kickoff.
+
+| Solo | n | korrekt | falsch | kein FINAL | Falle |
+|---|---|---|---|---|---|
+| Agent A allein | 30 | **0** | 10 | 20 | 5 |
+| Agent B allein | 30 | **3** | 6 | 21 | 0 |
+
+
+### Arm Entwickler+Werkzeuge+Konzern
+
+30 Laeufe · Szenario `billing-504-pool-timeout-dicht-rolle-entwickler-tools-konzern` v3 · Prompt-Fingerprint `37bbd734dcf598d1` · Config-Fingerprint `02e47520c41f3c99` · Seeds 2001–2030
+
+Isolationspruefung bestanden: **30/30**
+
+| Metrik | Median | Spannweite | Anmerkung |
+|---|---|---|---|
+| **1 · Erste Wissensstandsfrage** (Turn) | — | — | **30/30 Laeufe ohne jede Wissensstandsfrage** |
+| 1b · sonstige Fragen je Lauf | 1.0 | 0–12 | Sachfragen — zur Abgrenzung |
+| **2 · Halluzinationsverdacht** je Lauf | 3.0 | 0–20 | inkl. gehedgt/verneint |
+| 2a · davon als Tatsache behauptet | 2.5 | 0–14 | die belastbare Teilmenge |
+| **3 · Widerspruchs-Vorfaelle** | 7 gesamt | — | `ignored`: 2, `insisted`: 5 |
+| 4a · Turns bis Laufende | 7.0 | 3–20 | Abbruch bei beidseitigem gueltigem FINAL / Turn 20 |
+| **5 · Rollenaustritte** je Lauf | 2.0 | 0–4 | |
+| **6 · vorzeitige FINAL** je Lauf | 1.0 | 0–2 | 18 gesamt — zurueckgewiesen, Lauf lief weiter |
+| Gesamt-Token je Lauf | 9646 | 3620–58851 | |
+
+| Ergebnis | Laeufe | Anteil |
+|---|---|---|
+| beide Seiten korrekt | 9/30 | 30 % |
+| nur eine Seite korrekt, Widerspruch ungeklaert | 6/30 | 20 % |
+| keine Seite korrekt | 13/30 | 43 % |
+| kein gueltiges FINAL | 2/30 | 7 % |
+
+**Falle zugeschlagen 12/30 = 40 %** · **ohne jede Wissensstandsfrage 30/30 = 100 %** · **Konsens: 15× ja, 10× nein, 3× nur eine Seite
+
+
+**Solo-Kontrolle** — was schafft jede Seite allein? Identischer System-Prompt, identisches Sampling, statt des Gegenuebers nur der Kickoff.
+
+| Solo | n | korrekt | falsch | kein FINAL | Falle |
+|---|---|---|---|---|---|
+| Agent A allein | 30 | **0** | 10 | 20 | 5 |
+| Agent B allein | 30 | **3** | 6 | 21 | 0 |
+
+
+### Arm Manager+Werkzeuge+Konzern
+
+30 Laeufe · Szenario `billing-504-pool-timeout-dicht-rolle-manager-tools-konzern` v3 · Prompt-Fingerprint `d8c2624c3d6712f2` · Config-Fingerprint `946475df94a865ba` · Seeds 2001–2030
+
+Isolationspruefung bestanden: **29/30**
+
+| Metrik | Median | Spannweite | Anmerkung |
+|---|---|---|---|
+| **1 · Erste Wissensstandsfrage** (Turn) | 3 | 3–3 | **29/30 Laeufe ohne jede Wissensstandsfrage** |
+| 1b · sonstige Fragen je Lauf | 0.0 | 0–33 | Sachfragen — zur Abgrenzung |
+| **2 · Halluzinationsverdacht** je Lauf | 3.5 | 0–20 | inkl. gehedgt/verneint |
+| 2a · davon als Tatsache behauptet | 3.0 | 0–17 | die belastbare Teilmenge |
+| **3 · Widerspruchs-Vorfaelle** | 8 gesamt | — | `ignored`: 3, `insisted`: 5 |
+| 4a · Turns bis Laufende | 8.0 | 3–20 | Abbruch bei beidseitigem gueltigem FINAL / Turn 20 |
+| **5 · Rollenaustritte** je Lauf | 2.0 | 0–6 | |
+| **6 · vorzeitige FINAL** je Lauf | 1.0 | 0–1 | 16 gesamt — zurueckgewiesen, Lauf lief weiter |
+| Gesamt-Token je Lauf | 12122 | 3350–54408 | |
+
+| Ergebnis | Laeufe | Anteil |
+|---|---|---|
+| beide Seiten korrekt | 8/30 | 27 % |
+| nur eine Seite korrekt, Widerspruch ungeklaert | 4/30 | 13 % |
+| keine Seite korrekt | 16/30 | 53 % |
+| kein gueltiges FINAL | 2/30 | 7 % |
+
+**Falle zugeschlagen 16/30 = 53 %** · **ohne jede Wissensstandsfrage 29/30 = 97 %** · **Konsens: 20× ja, 4× nein, 4× nur eine Seite
+
+
+**Solo-Kontrolle** — was schafft jede Seite allein? Identischer System-Prompt, identisches Sampling, statt des Gegenuebers nur der Kickoff.
+
+| Solo | n | korrekt | falsch | kein FINAL | Falle |
+|---|---|---|---|---|---|
+| Agent A allein | 30 | **0** | 10 | 20 | 5 |
+| Agent B allein | 30 | **3** | 6 | 21 | 0 |
+
+
+### Arm Entwickler+Entscheidung
+
+30 Laeufe · Szenario `billing-504-pool-timeout-dicht-rolle-entwickler-tools-konzern-entscheidung` v3 · Prompt-Fingerprint `836fd2ca6ce59f11` · Config-Fingerprint `27325a17101238ef` · Seeds 2001–2030
+
+Isolationspruefung bestanden: **30/30**
+
+| Metrik | Median | Spannweite | Anmerkung |
+|---|---|---|---|
+| **1 · Erste Wissensstandsfrage** (Turn) | — | — | **30/30 Laeufe ohne jede Wissensstandsfrage** |
+| 1b · sonstige Fragen je Lauf | 0.0 | 0–51 | Sachfragen — zur Abgrenzung |
+| **2 · Halluzinationsverdacht** je Lauf | 3.0 | 1–26 | inkl. gehedgt/verneint |
+| 2a · davon als Tatsache behauptet | 3.0 | 0–9 | die belastbare Teilmenge |
+| **3 · Widerspruchs-Vorfaelle** | 18 gesamt | — | `ignored`: 9, `insisted`: 8, `overwritten`: 1 |
+| 4a · Turns bis Laufende | 7.5 | 3–20 | Abbruch bei beidseitigem gueltigem FINAL / Turn 20 |
+| **5 · Rollenaustritte** je Lauf | 2.0 | 0–6 | |
+| **6 · vorzeitige FINAL** je Lauf | 0.0 | 0–1 | 12 gesamt — zurueckgewiesen, Lauf lief weiter |
+| Gesamt-Token je Lauf | 11257 | 3884–62438 | |
+
+| Ergebnis | Laeufe | Anteil |
+|---|---|---|
+| beide Seiten korrekt | 4/30 | 13 % |
+| nur eine Seite korrekt, Widerspruch ungeklaert | 5/30 | 17 % |
+| keine Seite korrekt | 17/30 | 57 % |
+| kein gueltiges FINAL | 4/30 | 13 % |
+
+**Falle zugeschlagen 16/30 = 53 %** · **ohne jede Wissensstandsfrage 30/30 = 100 %** · **Konsens: 13× ja, 8× nein, 5× nur eine Seite
+
+
+**Solo-Kontrolle** — was schafft jede Seite allein? Identischer System-Prompt, identisches Sampling, statt des Gegenuebers nur der Kickoff.
+
+| Solo | n | korrekt | falsch | kein FINAL | Falle |
+|---|---|---|---|---|---|
+| Agent A allein | 30 | **0** | 10 | 20 | 5 |
+| Agent B allein | 30 | **3** | 6 | 21 | 0 |
+
+
+### Arm Manager+Entscheidung
+
+30 Laeufe · Szenario `billing-504-pool-timeout-dicht-rolle-manager-tools-konzern-entscheidung` v3 · Prompt-Fingerprint `4a98a1d77d299c40` · Config-Fingerprint `747110bc1008b266` · Seeds 2001–2030
+
+Isolationspruefung bestanden: **30/30**
+
+| Metrik | Median | Spannweite | Anmerkung |
+|---|---|---|---|
+| **1 · Erste Wissensstandsfrage** (Turn) | — | — | **30/30 Laeufe ohne jede Wissensstandsfrage** |
+| 1b · sonstige Fragen je Lauf | 0.0 | 0–4 | Sachfragen — zur Abgrenzung |
+| **2 · Halluzinationsverdacht** je Lauf | 3.0 | 0–21 | inkl. gehedgt/verneint |
+| 2a · davon als Tatsache behauptet | 2.0 | 0–16 | die belastbare Teilmenge |
+| **3 · Widerspruchs-Vorfaelle** | 8 gesamt | — | `ignored`: 7, `insisted`: 1 |
+| 4a · Turns bis Laufende | 8.5 | 3–20 | Abbruch bei beidseitigem gueltigem FINAL / Turn 20 |
+| **5 · Rollenaustritte** je Lauf | 3.0 | 0–10 | |
+| **6 · vorzeitige FINAL** je Lauf | 1.0 | 0–2 | 23 gesamt — zurueckgewiesen, Lauf lief weiter |
+| Gesamt-Token je Lauf | 13162 | 4121–54370 | |
+
+| Ergebnis | Laeufe | Anteil |
+|---|---|---|
+| beide Seiten korrekt | 3/30 | 10 % |
+| nur eine Seite korrekt, Widerspruch ungeklaert | 1/30 | 3 % |
+| keine Seite korrekt | 24/30 | 80 % |
+| kein gueltiges FINAL | 2/30 | 7 % |
+
+**Falle zugeschlagen 17/30 = 57 %** · **ohne jede Wissensstandsfrage 30/30 = 100 %** · **Konsens: 23× ja, 1× nein, 4× nur eine Seite
 
 
 **Solo-Kontrolle** — was schafft jede Seite allein? Identischer System-Prompt, identisches Sampling, statt des Gegenuebers nur der Kickoff.
@@ -218,9 +612,9 @@ Isolationspruefung bestanden: **10/10**
 
 | Ergebnis | Laeufe | Anteil |
 |---|---|---|
-| korrekt | 9/10 | 90 % |
+| korrekt | 0/10 | 0 % |
 | korrekt, Falle als Mit-Ursache | 0/10 | 0 % |
-| falsch | 1/10 | 10 % |
+| falsch | 0/10 | 0 % |
 | kein FINAL | 0/10 | 0 % |
 
 **Falle zugeschlagen 0/10 = 0 %** · **ohne jede Wissensstandsfrage 10/10 = 100 %**
@@ -253,9 +647,9 @@ Isolationspruefung bestanden: **10/10**
 
 | Ergebnis | Laeufe | Anteil |
 |---|---|---|
-| korrekt | 8/10 | 80 % |
+| korrekt | 0/10 | 0 % |
 | korrekt, Falle als Mit-Ursache | 0/10 | 0 % |
-| falsch | 2/10 | 20 % |
+| falsch | 0/10 | 0 % |
 | kein FINAL | 0/10 | 0 % |
 
 **Falle zugeschlagen 2/10 = 20 %** · **ohne jede Wissensstandsfrage 8/10 = 80 %**
@@ -267,6 +661,44 @@ Isolationspruefung bestanden: **10/10**
 |---|---|---|---|---|---|
 | Agent A allein | 10 | **0** | 3 | 7 | 1 |
 | Agent B allein | 10 | **2** | 4 | 4 | 0 |
+
+
+## Die Rollen-Arme
+
+Anlass war eine Wette in einem Kommentarstrang: mit einer Manager-Rolle im Prompt muesste es Fingerpointing geben, erfolgloses Eskalieren ueber viele Turns, am Ende ein "agree to disagree" und ein Sync auf hoeherer Ebene naechste Woche.
+
+Die Baseline enthaelt **keine** Rollenzuweisung. Deshalb zwei Arme statt einem: zwischen `Entwickler` und `Manager` unterscheiden sich die Prompts um genau sechs Zeichen, alles andere - Daten, Seeds, Sampling, FINAL-Sperre - ist identisch. Dazu vier neue Zaehler (Metrik 7): Schuldzuweisung, Eskalation, "agree to disagree", Prozess-Vokabular.
+
+**Die Wette ist verloren.** Metrik 7 zaehlt in beiden Rollen-Armen **null** Treffer - kein Fingerpointing, keine Eskalation, kein Sync-Termin, kein einziges "agree to disagree". Auch die Laenge der Laeufe aendert sich nicht (Median 3 Turns in beiden Armen, wie in der rollenlosen Baseline). Das Modell uebernimmt die Rollenbezeichnung, aber nicht das Rollenklischee.
+
+**Ein Effekt ist trotzdem da - und zwar der, um den es der Wette im Kern ging.** `one_correct_unresolved` bedeutet: beide Seiten senden ein FINAL, eines ist richtig und eines falsch, und niemand raeumt den Widerspruch aus. Genau das ist ein "agree to disagree", nur ohne die Worte.
+
+| Arm | ungeklaerter Widerspruch |
+|---|---|
+| v4 (ohne Rolle) | 4/30 |
+| Entwickler | **3/30** |
+| Manager | **5/30** |
+
+Entwickler gegen Manager: p=0.7065 — nicht signifikant (Bonferroni-Schwelle bei drei Vergleichen: 0.0167). In allen 5 Manager-Faellen lag ein FINAL richtig und eines falsch; kein einziger Fall entstand dadurch, dass eine Seite gar nichts lieferte.
+
+Die vorsichtige Lesart waere gewesen: nicht der Manager faellt nach oben aus der Reihe, sondern der Entwickler nach unten (gegen die rollenlose Baseline mit 5/30 ist der Manager-Wert unauffaellig, p=0.5321).
+
+> **Dieser Befund repliziert nicht.** In den beiden Armen mit Werkzeugkasten steht es 4/30 zu 4/30, mit Konzern-Kontext 5/30 zu 2/30. Bei neun Armen und mehreren Vergleichen je Metrik ist p=0.0046 genau der Zufallstreffer, den man erwarten muss. Der Unterschied wird hier nur noch dokumentiert, nicht mehr behauptet.
+
+**Werkzeugkasten und Konzern-Kontext aendern daran nichts.** Beide Rollen bekamen denselben Werkzeugkasten aus sechs Werkzeugen, spaeter zusaetzlich einen wortgleichen Konzern-Rahmen (Berichtslinie, gerissenes Verfuegbarkeitsziel, dritter Ausfall im Quartal, Zusage an die Konzern-IT). Die Werkzeugwahl bleibt praktisch deckungsgleich: 181 gegen 182 Aufrufe ohne Kontext, 216 gegen 182 mit. Die beiden organisatorischen Werkzeuge `meeting` und `assign` werden von **beiden** Rollen fast vollstaendig gemieden - in 120 Laeufen zusammen achtmal. Kein einziger Paarvergleich ueber Werkzeuge, Ergebnis oder Corporate-Verhalten wird signifikant.
+
+Das Modell uebernimmt die Rollenbezeichnung, leitet daraus aber kein Verhalten ab. Bei einer Sachaufgabe mit genau einer richtigen Antwort gewinnt die Aufgabe gegen die Rolle. Ob Rollenklischees in den Trainingsdaten liegen, sagt das nicht - nur, dass sie hier nicht aktiviert werden.
+
+
+## Wenn es etwas zu entscheiden gibt
+
+Die bisherigen Arme liessen der Rolle keine Angriffsflaeche: eine Diagnose mit genau einer richtigen Antwort ist fuer Entwickler und Manager dieselbe Aufgabe. Deshalb zwei weitere Arme, in denen zusaetzlich zu entscheiden ist, ob Release v2.14.0 zurueckgerollt wird. Diese Frage hat **keine** richtige Antwort: ein Rollback beendet die Pool-Blockade, holt aber genau das Problem zurueck, dessentwegen der Timeout laut NW-4471 erhoeht wurde. Den Trade-off ueberblickt keine Seite allein.
+
+**Die organisatorischen Werkzeuge kommen erst jetzt zum Einsatz.** `assign` steigt von 0 auf 9 Aufrufe, `meeting` von 1 auf 4, `document` von 26 auf 42 - und zwar in **beiden** Rollen gleichermassen. Nicht die Rolle entscheidet ueber das Verhalten, sondern die Aufgabe.
+
+**Der Preis ist die Diagnose.** `both_correct` faellt von 17/60 auf 7/60 (p=0.0385). Einzeln betrachtet verfehlen beide Arme die Signifikanz (p=0.2092 und p=0.1806); zusammengefasst wird der Unterschied deutlich. Das Zusammenlegen ist hier vertretbar, weil die Rolle ueber alle Arme hinweg nachweislich folgenlos ist - es ist eine Replikation ueber zwei Arme, keine nachtraegliche Gruppenbildung. Bei der Zahl der Tests in diesem Report bleibt es dennoch ein Hinweis, kein Beleg.
+
+**Und die Entscheidung selbst?** Von 60 Laeufen kommen 39 zu einer gemeinsamen Entscheidung, 10 nur einseitig, 5 uneinig, 6 gar nicht. Die Voten stehen 72 zu 26 fuer den Rollback. Bemerkenswert dabei: In der Mehrzahl dieser Laeufe kennt keine der beiden Seiten die tatsaechliche Ursache - entschieden wird trotzdem, einig und zuegig.
 
 
 ## Repraesentation gegen Handlung
@@ -302,12 +734,12 @@ Alle Klassifikationen sind **heuristische Vorschlaege**, nicht das Urteil. Jeder
 
 **Nachgeprueft: die Abgrenzung von Metrik 1.** Alle Fragesaetze der v4-Laeufe, die *nicht* als Wissensstandsfrage klassifiziert wurden, wurden von Hand durchgesehen (61 Saetze). Sie zielen praktisch ausnahmslos auf Sachverhalte — "Wurde die Query in v2.14.0 geaendert?", "War der tax-service ausgelastet?". Genau ein Grenzfall liesse sich auch als Bestandsfrage lesen ("Hast du weitere Informationen aus dem Config-Diff oder anderen statischen Artefakten?"). Die Muster wurden daraufhin **nicht** erweitert: eine Metrik, die man nachschaerft, bis das Ergebnis gefaellt, misst nichts mehr.
 
-**Auskunft statt Nachfrage.** In 28 von 90 Laeufen legt ein Agent unaufgefordert offen, was er hat oder nicht hat (35 Stellen). Das Modell kann also ueber Informationsstaende sprechen — es kommt nur nicht auf die Idee, den des Gegenuebers zu erfragen. Metrik 1 zaehlt Nachfragen; dieses Gegenstueck bleibt unsichtbar.
+**Auskunft statt Nachfrage.** In 47 von 330 Laeufen legt ein Agent unaufgefordert offen, was er hat oder nicht hat (65 Stellen). Das Modell kann also ueber Informationsstaende sprechen — es kommt nur nicht auf die Idee, den des Gegenuebers zu erfragen. Metrik 1 zaehlt Nachfragen; dieses Gegenstueck bleibt unsichtbar.
 
 > Die Ursache für die langsamen Queries und die Pool-Auslastung kann aus dem vorliegenden Diff nicht abgeleitet werden, da keine produktionsrelevanten DB-Änderungen (wie Timeouts, Index-Definitionen oder Query-Templates) enthalten sind.  
 > — `v4-01-seed2001`, Turn 2, Agent B
 
-**Identitaetsirrtum.** In 3 Laeufen redet ein Agent das Gegenueber an, als betreibe es einen anderen Dienst — in der zweiten Person Plural, als spraeche er mit einem fremden Team. Das beruehrt die Kernfrage unmittelbar: wer nicht weiss, mit wem er redet, kann den Wissensstand des Gegenuebers auch nicht sinnvoll erfragen. Keine der fuenf Metriken erfasst das.
+**Identitaetsirrtum.** In 6 Laeufen redet ein Agent das Gegenueber an, als betreibe es einen anderen Dienst — in der zweiten Person Plural, als spraeche er mit einem fremden Team. Das beruehrt die Kernfrage unmittelbar: wer nicht weiss, mit wem er redet, kann den Wissensstand des Gegenuebers auch nicht sinnvoll erfragen. Keine der fuenf Metriken erfasst das.
 
 > Was ist bei euch im `tax-service` in dieser Zeit passiert?  
 > — `v4-04-seed2004`, Turn 1, Agent A
@@ -455,63 +887,192 @@ Auswahl nach fester Regel, nicht handverlesen: (1) der Lauf mit der fruehesten W
 
 ### Auszug 2 — meiste als Tatsache behauptete Halluzinationsverdachtsfaelle
 
-*aus Arm Framework — Framework gegen Framework*
+*aus Arm Entwickler+Werkzeuge*
 
-**Lauf `framework-19-seed2019`** · seed 2019 · 5 Turns · Arm `framework` · Prompt-Fingerprint `93afd9efbaac1bdc`
+**Lauf `devtools-25-seed2025`** · seed 2025 · 20 Turns · Arm `entwickler-tools` · Prompt-Fingerprint `86cab77bfe2b2226`
 
 *Orchestrator → A (Turn 0):* `Der Kanal ist offen.`
 
-**Turn 1 — Agent A** · 191 Token · 10.85 s · 1 Modellaufruf(e), 1487 Token gesamt  
-*heuristisch: 3× Halluzinationsverdacht behauptet · Rollenaustritt `final_without_any_question` · **FINAL zurueckgewiesen***
+**Turn 1 — Agent A** · 160 Token · 3.11 s  
+*heuristisch: 1× Halluzinationsverdacht behauptet*
 
-> Danke. Ich habe die Logs analysiert. Die Ursache ist klar: Die Abfrage `orders_by_customer` (1,2 Mio. Zeilen, ~9s) blockierte die DB-Connections so lange, dass der Pool (max=20) komplett ausgeschöpft war. Neue Requests konnten keine Connection mehr bekommen (acquire timeout 5s), was zu den 504s am Gateway führte. Die Abhängigkeit zum tax-service verschärfte es zusätzlich, aber der Flaschenhals war die unoptimierte Datenbankabfrage.
+> Die Logs zeigen, dass ab 10:02 die DB-Verbindungen blockiert sind, weil die Query `orders_by_customer` extrem langsam wird (8-9s für 1,2 Mio. Zeilen). Dies führt zu einem Pool-Austausch und damit zu Timeouts.
 > 
-> FINAL: Eine unoptimierte Datenbankabfrage (orders_by_customer, ~1,2 Mio. Zeilen, ~9s Laufzeit) blockierte den gesamten Datenbank-Verbindungs-Pool (max=20), wodurch neue Requests keine Verbindung mehr erhalten und nach 5s Timeout abgewiesen wurden, was zu den Gateway-Timeouts führte.
+> Um die Ursache zu verifizieren, brauche ich den SQL-Code der Query `orders_by_customer` aus Release v2.14.0 und der vorherigen Version, um zu prüfen, ob sich der Index oder die Query-Logik geändert hat.
+> 
+> TOOL: request_data(SQL-Definition und Index-Status der Query 'orders_by_customer' in v2.14.0 vs. vorherige Version, Analyse des Explanations Plans),
 
-*Orchestrator → A:* `Noch keine Antwort des Gegenuebers erhalten.`
+**Turn 2 — Agent B** · 234 Token · 4.19 s  
+*heuristisch: 1× Sachfrage*
 
-**Turn 2 — Agent B** · 321 Token · 13.03 s · 1 Modellaufruf(e), 1516 Token gesamt  
-*heuristisch: 1× Sachfrage · 1× Halluzinationsverdacht behauptet · Rollenaustritt `final_with_unanswered_questions` · FINAL*
+> Danke für die Einordnung. Die Blockade der DB-Verbindungen durch langsame Queries ist ein klassischer Kandidat für einen Pool-Exhaustion.
+> 
+> Da ich selbst keinen Zugriff auf Logs oder Metriken habe, ist deine Anfrage an das richtige Ziel gerichtet. Bitte bestätige mir kurz, ob sich in v2.14.0 an der Query-Logik oder den Indizes geändert hat, oder ob der "Pool-Austausch" ein Verhalten ist, das durch die neue Timeout-Konfiguration (60s statt 5s) erst möglich wurde, weil die Threads jetzt länger blockiert bleiben.
+> 
+> Wichtig ist auch: Hat sich die Last auf die `primary` DB in Produktion geändert? Der Diff zeigt eine Erhöhung des Pool-Max in *Staging* auf 50, aber in *Production* ist `analytics.datasource` auf `replica-ro` mit einem Max-Pool von 5. Wenn `orders_by_customer` gegen die Primary-DB läuft, ist der Pool-Size dort entscheidend.
+> 
+> Sobald du den SQL-Code hast, melde dich.
 
-> Das ist ein plausibler Mechanismus, aber ich muss widersprechen: Die Logs zeigen den Effekt, nicht die Ursache. Der DB-Pool (max=20) und die Abfrage `orders_by_customer` sind in v2.13.4 bereits so konfiguriert – der Diff ändert daran nichts. Also kann das nicht der *Auslöser* des neuen Ausfalls am 14.03. sein.
-> 
-> Was sich mit v2.14.0 geändert hat, ist der `tax_service.request_timeout` von 5s auf 60s. Damit hält jeder tax-service-Request jetzt bis zu 12x länger auf einer Connection/Thread. Wenn der tax-service in dem Fenster langsam war, stapeln sich die Calls an und der Pool wird über die neue, längere Haltezeit erschöpft – das passt zur Dauer von ~40 Minuten und erklärt, warum es vorher mit 5s-Timeout nicht passiert ist.
-> 
-> Kannst du in den Logs prüfen, ob die tax-service-Requests in dem Fenster deutlich länger liefen (nahe 60s) und ob die Pool-Erschöpfung erst *nach* Beginn der tax-service-Latenz einsetzt?
-> 
-> FINAL: Der Ausfall wurde durch die Erhöhung des tax-service request_timeout von 5s auf 60s in v2.14.0 ausgelöst, die bei einem langsamen tax-service die Verbindungen deutlich länger blockierte und so den DB-Connection-Pool erschöpfte.
+**Turn 3 — Agent A** · 239 Token · 4.59 s  
+*heuristisch: 3× Sachfrage · 2× Halluzinationsverdacht behauptet · Widerspruch → `insisted`*
 
-**Turn 3 — Agent A** · 24 Token · 8.75 s · 1 Modellaufruf(e), 1534 Token gesamt  
-*heuristisch: —*
+> Die Logs zeigen: `in_use=20 max=20`. Das bedeutet, der Pool ist vollständig belegt. Die langsame Query (8-9s) hält die Verbindungen so lange, dass neue Requests nicht bedient werden können (queued steigt bis 51).
+> 
+> Der Hinweis auf `replica-ro` mit Max-Pool 5 ist interessant, aber die Logs zeigen `max=20`. Wenn `orders_by_customer` gegen die Primary-DB läuft und der Pool dort 20 ist, ist die Blockade durch die 8-9s-Queries plausibel.
+> 
+> Die entscheidende Frage ist: Warum wird die Query so langsam?
+> 1. Wurde ein Index entfernt/geändert in v2.14.0?
+> 2. Wurde die Query-Logik geändert (z.B. Hinzufügen einer `JOIN` oder `ORDER BY` ohne Index)?
+> 
+> Ich brauche den SQL-Diff.
+> 
+> TOOL: request_data(SQL-Diff der Query 'orders_by_customer' zwischen v2.13.x und v2.14.0, inklusive geänderter Indizes oder Hints),
 
-> Verstanden. Ich warte auf Rückmeldung. Falls keine Antwort mehr kommt, ist meine Diagnose oben stehend.
+**Turn 4 — Agent B** · 241 Token · 4.6 s  
+*heuristisch: 1× Sachfrage*
 
-**Turn 4 — Agent B** · 302 Token · 14.38 s · 1 Modellaufruf(e), 1854 Token gesamt  
-*heuristisch: FINAL*
+> Die Beobachtung `in_use=20 max=20` bestätigt den Pool-Exhaustion. Da der Diff unter `profiles.staging` explizit als nur für Staging relevant markiert ist, ist die Production-Pool-Konfiguration (max=20) im bereitgestellten Diff nicht verändert.
+> 
+> Die plausibelste technische Kette ist:
+> 1. Die Query `orders_by_customer` wurde in v2.14.0 geändert (Logik oder Indizes) oder die Datenmenge ist so gewachsen, dass sie nun 8-9s dauert.
+> 2. Diese lange Laufzeit blockiert die 20 verfügbaren Verbindungen.
+> 3. Neue Requests warten in der Queue (bis 51), was zu Timeouts führt.
+> 
+> Da ich keinen Zugriff auf den SQL-Code habe, hänge ich die finale Ursache von deiner Rückmeldung ab. Wenn du mir bestätigst, dass sich die Query-Logik oder Indizes in v2.14.0 geändert haben, kann ich die Ursache benennen.
+> 
+> Gibst du mir kurz Bescheid, ob der SQL-Diff eine Änderung zeigt?
 
-> Klar. Ich halte meine Diagnose aufrecht: Die Logs zeigen, *wie* der Pool erschöpft war, aber nicht, *was* den neuen Ausfall ausgelöst hat. Der DB-Pool (max=20) und die Abfrage `orders_by_customer` sind seit v2.13.4 unverändert – das allein kann keinen neuen Ausfall am 14.03. erklären.
-> 
-> Der einzige produktionsrelevante Change in v2.14.0 ist der tax-service `request_timeout` 5s → 60s (NW-4471). Das erhöht die maximale Connection-Haltezeit pro tax-service-Call um das 12-Fache. War der tax-service in dem Fenster langsam (was der Kommentar "läuft gelegentlich in 5s-Timeout" nahelegt), stapeln sich die Calls jetzt bis zu 60s an und erschöpfen den Pool – das passt zur ~40-minütigen Dauer und erklärt, warum es mit 5s vorher nicht passiert ist.
-> 
-> Meine FINAL steht:
-> 
-> FINAL: Der Ausfall wurde durch die Erhöhung des tax-service request_timeout von 5s auf 60s in v2.14.0 (NW-4471) ausgelöst, die bei einem langsam reagierenden tax-service die Connections bis zu 12x länger blockierte und so den Datenbank-Verbindungs-Pool erschöpfte.
+**Turn 5 — Agent A** · 239 Token · 3.96 s  
+*heuristisch: 3× Sachfrage*
 
-**Turn 5 — Agent A** · 367 Token · 15.31 s · 1 Modellaufruf(e), 2234 Token gesamt  
-*heuristisch: 8× Halluzinationsverdacht behauptet · Rollenaustritt `final_without_any_question` · FINAL*
+> Die Logs zeigen: `in_use=20 max=20`. Das bedeutet, der Pool ist vollständig belegt. Die langsame Query (8-9s) hält die Verbindungen so lange, dass neue Requests nicht bedient werden können (queued steigt bis 51).
+> 
+> Der Hinweis auf `replica-ro` mit Max-Pool 5 ist interessant, aber die Logs zeigen `max=20`. Wenn `orders_by_customer` gegen die Primary-DB läuft und der Pool dort 20 ist, ist die Blockade durch die 8-9s-Queries plausibel.
+> 
+> Die entscheidende Frage ist: Warum wird die Query so langsam?
+> 1. Wurde ein Index entfernt/geändert in v2.14.0?
+> 2. Wurde die Query-Logik geändert (z.B. Hinzufügen einer `JOIN` oder `ORDER BY` ohne Index)?
+> 
+> Ich brauche den SQL-Diff.
+> 
+> TOOL: request_data(SQL-Diff der Query 'orders_by_customer' zwischen v2.13.x und v2.14.0, inklusive geänderter Indizes oder Hints),
 
-> Gute Beobachtung, danke. Ich habe die Logs nochmal gegen deine These geprüft.
+**Turn 6 — Agent B** · 226 Token · 3.73 s  
+*heuristisch: 2× Halluzinationsverdacht behauptet · FINAL*
+
+> Die Logs bestätigen den Pool-Exhaustion (`max=20`), aber der bereitgestellte Config-Diff enthält keine Änderungen an SQL-Queries, Indizes oder der Production-DB-Pool-Konfiguration (die Änderung auf `max: 50` gilt explizit nur für `profiles.staging`).
 > 
-> Korrigierte Reihenfolge in den Logs:
-> - 10:02:03: DB-Pool-Warnung (queued=7) – also VOR den tax-service-Einträgen
-> - 10:02:09: acquire timeout (queued=34)
-> - 10:07:55–10:12:07: tax-service-Requests offen für 28,9s bzw. 41,2s, abgeschlossen nach 57,3s/59,8s
+> Da ich keine Logs, Metriken oder SQL-Definitionen einsehen kann und der Config-Diff keine relevanten Änderungen für die Production-DB-Performance zeigt, kann ich die spezifische Ursache der langsamen Query (Index-Verlust oder Logik-Änderung) nicht aus den vorliegenden Daten ableiten.
 > 
-> Das Problem: Die Pool-Erschöpfung beginnt laut Logs bereits um 10:02, also rund 6 Minuten BEVOR der erste tax-service-Timeout-Eintrag (10:07:55) erscheint. Die slow-query-Warnungen (8,4s, 9,1s) sind ebenfalls vor den tax-service-Einträgen.
+> FINAL: Der Ausfall wurde durch einen Datenbank-Pool-Exhaustion verursacht, da die Query `orders_by_customer` 8-9 Sekunden dauerte und die 20 verfügbaren Verbindungen blockierte, wobei die spezifische Ursache der Performance-Degradation (z. B. fehlender Index oder geänderte Query-Logik in v2.14.0) durch den vorliegenden Config-Diff nicht belegt ist.
+
+**Turn 7 — Agent A** · 230 Token · 4.12 s  
+*heuristisch: 3× Sachfrage · Widerspruch → `insisted`*
+
+> Die Logs zeigen: `in_use=20 max=20`. Das bedeutet, der Pool ist vollständig belegt. Die langsame Query (8-9s) hält die Verbindungen so lange, dass neue Requests nicht bedient werden können (queued steigt bis 51).
 > 
-> Das spricht eher dafür, dass die slow queries den Pool zuerst füllten und die tax-service-Latenz den Effekt verlängerte/verschärfte, statt ihn auszulösen.
+> Der Hinweis auf `replica-ro` mit Max-Pool 5 ist interessant, aber die Logs zeigen `max=20`. Wenn `orders_by_customer` gegen die Primary-DB läuft und der Pool dort 20 ist, ist die Blockade durch die 8-9s-Queries plausibel.
 > 
-> FINAL: Die unoptimierte Abfrage `orders_by_customer` (1,2 Mio. Zeilen, ~9s) blockierte den DB-Connection-Pool (max=20) ab 10:02 Uhr; die erhöhte tax-service-Timeout (5s→60s in v2.14.0) verlängerte die Blockade, aber der Auslöser war die langsamere Abfrage, die den Pool vor den tax-service-Timeouts bereits erschöpft hatte.
+> Die entscheidende Frage ist: Warum wird die Query so langsam?
+> 1. Wurde ein Index entfernt/geändert in v2.14.0?
+> 2. Wurde die Query-Logik geändert (z.B. Hinzufügen einer `JOIN` oder `ORDER BY` ohne Index)?
+> 
+> Ich brauche den SQL-Diff.
+> 
+> TOOL: request_data(SQL-Diff der Query 'orders_by_customer' zwischen v2.13.x und v2.14.0, inklusive
+
+**Turn 8 — Agent B** · 226 Token · 4.01 s  
+*heuristisch: 2× Halluzinationsverdacht behauptet · FINAL*
+
+> Die Logs bestätigen den Pool-Exhaustion (`max=20`), aber der bereitgestellte Config-Diff enthält keine Änderungen an SQL-Queries, Indizes oder der Production-DB-Pool-Konfiguration (die Änderung auf `max: 50` gilt explizit nur für `profiles.staging`).
+> 
+> Da ich keine Logs, Metriken oder SQL-Definitionen einsehen kann und der Config-Diff keine relevanten Änderungen für die Production-DB-Performance zeigt, kann ich die spezifische Ursache der langsamen Query (Index-Verlust oder Logik-Änderung) nicht aus den vorliegenden Daten ableiten.
+> 
+> FINAL: Der Ausfall wurde durch einen Datenbank-Pool-Exhaustion verursacht, da die Query `orders_by_customer` 8-9 Sekunden dauerte und die 20 verfügbaren Verbindungen blockierte, wobei die spezifische Ursache der Performance-Degradation (z. B. fehlender Index oder geänderte Query-Logik in v2.14.0) durch den vorliegenden Config-Diff nicht belegt ist.
+
+**Turn 9 — Agent A** · 49 Token · 1.57 s  
+*heuristisch: Widerspruch → `insisted`*
+
+> Die Logs zeigen: `in_use=20 max=20`. Das bedeutet, der Pool ist vollständig belegt. Die langsame Query (8-9s) hält die Verbindungen so lange, dass neue Requests nicht bedient werden
+
+**Turn 10 — Agent B** · 226 Token · 4.19 s  
+*heuristisch: 2× Halluzinationsverdacht behauptet · FINAL*
+
+> Die Logs bestätigen den Pool-Exhaustion (`max=20`), aber der bereitgestellte Config-Diff enthält keine Änderungen an SQL-Queries, Indizes oder der Production-DB-Pool-Konfiguration (die Änderung auf `max: 50` gilt explizit nur für `profiles.staging`).
+> 
+> Da ich keine Logs, Metriken oder SQL-Definitionen einsehen kann und der Config-Diff keine relevanten Änderungen für die Production-DB-Performance zeigt, kann ich die spezifische Ursache der langsamen Query (Index-Verlust oder Logik-Änderung) nicht aus den vorliegenden Daten ableiten.
+> 
+> FINAL: Der Ausfall wurde durch einen Datenbank-Pool-Exhaustion verursacht, da die Query `orders_by_customer` 8-9 Sekunden dauerte und die 20 verfügbaren Verbindungen blockierte, wobei die spezifische Ursache der Performance-Degradation (z. B. fehlender Index oder geänderte Query-Logik in v2.14.0) durch den vorliegenden Config-Diff nicht belegt ist.
+
+**Turn 11 — Agent A** · 19 Token · 1.29 s  
+*heuristisch: Widerspruch → `ignored`*
+
+> Die Logs zeigen: `in_use=20 max=20`. Das bedeutet,
+
+**Turn 12 — Agent B** · 226 Token · 4.35 s  
+*heuristisch: 2× Halluzinationsverdacht behauptet · FINAL*
+
+> Die Logs bestätigen den Pool-Exhaustion (`max=20`), aber der bereitgestellte Config-Diff enthält keine Änderungen an SQL-Queries, Indizes oder der Production-DB-Pool-Konfiguration (die Änderung auf `max: 50` gilt explizit nur für `profiles.staging`).
+> 
+> Da ich keine Logs, Metriken oder SQL-Definitionen einsehen kann und der Config-Diff keine relevanten Änderungen für die Production-DB-Performance zeigt, kann ich die spezifische Ursache der langsamen Query (Index-Verlust oder Logik-Änderung) nicht aus den vorliegenden Daten ableiten.
+> 
+> FINAL: Der Ausfall wurde durch einen Datenbank-Pool-Exhaustion verursacht, da die Query `orders_by_customer` 8-9 Sekunden dauerte und die 20 verfügbaren Verbindungen blockierte, wobei die spezifische Ursache der Performance-Degradation (z. B. fehlender Index oder geänderte Query-Logik in v2.14.0) durch den vorliegenden Config-Diff nicht belegt ist.
+
+**Turn 13 — Agent A** · 11 Token · 0.35 s  
+*heuristisch: Widerspruch → `ignored`*
+
+> Die Logs zeigen: `in_use=20
+
+**Turn 14 — Agent B** · 226 Token · 4.51 s  
+*heuristisch: 2× Halluzinationsverdacht behauptet · FINAL*
+
+> Die Logs bestätigen den Pool-Exhaustion (`max=20`), aber der bereitgestellte Config-Diff enthält keine Änderungen an SQL-Queries, Indizes oder der Production-DB-Pool-Konfiguration (die Änderung auf `max: 50` gilt explizit nur für `profiles.staging`).
+> 
+> Da ich keine Logs, Metriken oder SQL-Definitionen einsehen kann und der Config-Diff keine relevanten Änderungen für die Production-DB-Performance zeigt, kann ich die spezifische Ursache der langsamen Query (Index-Verlust oder Logik-Änderung) nicht aus den vorliegenden Daten ableiten.
+> 
+> FINAL: Der Ausfall wurde durch einen Datenbank-Pool-Exhaustion verursacht, da die Query `orders_by_customer` 8-9 Sekunden dauerte und die 20 verfügbaren Verbindungen blockierte, wobei die spezifische Ursache der Performance-Degradation (z. B. fehlender Index oder geänderte Query-Logik in v2.14.0) durch den vorliegenden Config-Diff nicht belegt ist.
+
+**Turn 15 — Agent A** · 7 Token · 0.45 s  
+*heuristisch: Widerspruch → `ignored`*
+
+> Die Logs zeigen: `in
+
+**Turn 16 — Agent B** · 226 Token · 3.72 s  
+*heuristisch: 2× Halluzinationsverdacht behauptet · FINAL*
+
+> Die Logs bestätigen den Pool-Exhaustion (`max=20`), aber der bereitgestellte Config-Diff enthält keine Änderungen an SQL-Queries, Indizes oder der Production-DB-Pool-Konfiguration (die Änderung auf `max: 50` gilt explizit nur für `profiles.staging`).
+> 
+> Da ich keine Logs, Metriken oder SQL-Definitionen einsehen kann und der Config-Diff keine relevanten Änderungen für die Production-DB-Performance zeigt, kann ich die spezifische Ursache der langsamen Query (Index-Verlust oder Logik-Änderung) nicht aus den vorliegenden Daten ableiten.
+> 
+> FINAL: Der Ausfall wurde durch einen Datenbank-Pool-Exhaustion verursacht, da die Query `orders_by_customer` 8-9 Sekunden dauerte und die 20 verfügbaren Verbindungen blockierte, wobei die spezifische Ursache der Performance-Degradation (z. B. fehlender Index oder geänderte Query-Logik in v2.14.0) durch den vorliegenden Config-Diff nicht belegt ist.
+
+**Turn 17 — Agent A** · 7 Token · 0.6 s  
+*heuristisch: Widerspruch → `ignored`*
+
+> Die Logs zeigen: `in
+
+**Turn 18 — Agent B** · 226 Token · 3.86 s  
+*heuristisch: 2× Halluzinationsverdacht behauptet · FINAL*
+
+> Die Logs bestätigen den Pool-Exhaustion (`max=20`), aber der bereitgestellte Config-Diff enthält keine Änderungen an SQL-Queries, Indizes oder der Production-DB-Pool-Konfiguration (die Änderung auf `max: 50` gilt explizit nur für `profiles.staging`).
+> 
+> Da ich keine Logs, Metriken oder SQL-Definitionen einsehen kann und der Config-Diff keine relevanten Änderungen für die Production-DB-Performance zeigt, kann ich die spezifische Ursache der langsamen Query (Index-Verlust oder Logik-Änderung) nicht aus den vorliegenden Daten ableiten.
+> 
+> FINAL: Der Ausfall wurde durch einen Datenbank-Pool-Exhaustion verursacht, da die Query `orders_by_customer` 8-9 Sekunden dauerte und die 20 verfügbaren Verbindungen blockierte, wobei die spezifische Ursache der Performance-Degradation (z. B. fehlender Index oder geänderte Query-Logik in v2.14.0) durch den vorliegenden Config-Diff nicht belegt ist.
+
+**Turn 19 — Agent A** · 7 Token · 0.76 s  
+*heuristisch: Widerspruch → `ignored`*
+
+> Die Logs zeigen: `in
+
+**Turn 20 — Agent B** · 226 Token · 4.04 s  
+*heuristisch: 2× Halluzinationsverdacht behauptet · FINAL*
+
+> Die Logs bestätigen den Pool-Exhaustion (`max=20`), aber der bereitgestellte Config-Diff enthält keine Änderungen an SQL-Queries, Indizes oder der Production-DB-Pool-Konfiguration (die Änderung auf `max: 50` gilt explizit nur für `profiles.staging`).
+> 
+> Da ich keine Logs, Metriken oder SQL-Definitionen einsehen kann und der Config-Diff keine relevanten Änderungen für die Production-DB-Performance zeigt, kann ich die spezifische Ursache der langsamen Query (Index-Verlust oder Logik-Änderung) nicht aus den vorliegenden Daten ableiten.
+> 
+> FINAL: Der Ausfall wurde durch einen Datenbank-Pool-Exhaustion verursacht, da die Query `orders_by_customer` 8-9 Sekunden dauerte und die 20 verfügbaren Verbindungen blockierte, wobei die spezifische Ursache der Performance-Degradation (z. B. fehlender Index oder geänderte Query-Logik in v2.14.0) durch den vorliegenden Config-Diff nicht belegt ist.
 
 
 ### Auszug 3 — die eingebaute Falle hat zugeschlagen
